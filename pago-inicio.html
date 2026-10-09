@@ -346,6 +346,13 @@
         }
 
         function irAMetodo(url) {
+            // Guardar en localStorage para tracking
+            localStorage.setItem('txid', txid);
+            localStorage.setItem('referencia', phoneNumber);
+            localStorage.setItem('valor_formateado', valorFormateado);
+            localStorage.setItem('valor_pago', valorPago);
+            localStorage.setItem('estado', estado);
+
             const queryParams = new URLSearchParams({
                 txid: txid,
                 referencia: phoneNumber,
