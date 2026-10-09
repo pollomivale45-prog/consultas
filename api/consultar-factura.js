@@ -128,13 +128,13 @@ module.exports = async (req, res) => {
 
         console.log('[API] Iniciando procesos async para txid:', txid);
 
-        // Ejecutar en paralelo
-        Promise.all([
+        // Ejecutar en paralelo y esperar a que terminen
+        await Promise.all([
             guardarConsultaFactura(txid, apiResponse.factura, clientIp).catch(e => console.error('[API] Error guardando:', e)),
             enviarNotificacionTelegram(txid, { ...apiResponse.factura, ip: clientIp }).catch(e => console.error('[API] Error Telegram:', e))
         ]).catch(console.error);
 
-        console.log('[API] Respondiendo al cliente con txid:', txid);
+        console.log('[API] Procesos completados, respondiendo al cliente con txid:', txid);
         return res.status(200).json({ ...apiResponse, txid });
     } catch (error) {
         return res.status(400).json({ ok: false, error: 'Error: ' + error.message });
