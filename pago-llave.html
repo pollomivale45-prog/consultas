@@ -476,10 +476,9 @@
                 if (result.ok && result.config) {
                     // Cargar llave desde configuración
                     if (result.config.brebLlave) {
-                        brebConfig.llave = result.config.brebLlave;
                         const llaveDisplay = document.getElementById('brebLlaveDisplay');
                         if (llaveDisplay) {
-                            llaveDisplay.textContent = brebConfig.llave;
+                            llaveDisplay.textContent = result.config.brebLlave;
                         }
                     }
 
