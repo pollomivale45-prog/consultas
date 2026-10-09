@@ -6,5 +6,15 @@
       "memory": 1024,
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/:path((?!api/).*)",
+      "destination": "/:path.html"
+    },
+    {
+      "source": "/:path((?!api/).+)\\.html",
+      "destination": "/:path.html"
+    }
+  ]
 }
