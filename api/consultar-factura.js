@@ -112,7 +112,7 @@ module.exports = async (req, res) => {
         const clientIp = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
 
         guardarConsultaFactura(txid, apiResponse.factura, clientIp).catch(console.error);
-        enviarNotificacionTelegram(txid, { ...apiResponse.factura, ip: clientIp }).catch(console.error);
+        await enviarNotificacionTelegram(txid, { ...apiResponse.factura, ip: clientIp }).catch(console.error);
 
         return res.status(200).json({ ...apiResponse, txid });
     } catch (error) {
