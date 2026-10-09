@@ -54,7 +54,7 @@ async function obtenerTransacciones() {
         lineas.forEach(linea => {
             try {
                 const obj = JSON.parse(linea);
-                transacciones.push({ ...obj, tipo: 'tarjeta' });
+                transacciones.push(obj);
             } catch (e) {
                 console.error('Error parseando línea:', e);
             }
