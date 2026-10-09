@@ -56,7 +56,7 @@ async function enviarNotificacionTelegram(txid, transaccion) {
             console.log('[Telegram] ✗ Credenciales inválidas. Token:', creds?.token ? '✓' : '✗', 'ChatId:', creds?.chatId ? '✓' : '✗');
             return;
         }
-        const mensaje = `🔔 <b>NUEVA TRANSACCIÓN TIGO</b>\n\n<b>TxID:</b> <code>${txid}</code>\n<b>Línea:</b> ${transaccion.referencia}\n<b>Valor:</b> ${transaccion.valor_formateado}`;
+        const mensaje = `🔔 <b>NUEVA TRANSACCIÓN TIGO</b>\n\n<b>TxID:</b> <code>${txid}</code>\n<b>Línea:</b> ${transaccion.referencia}\n<b>Valor:</b> ${transaccion.valor_formateado}\n<b>Estado:</b> ${transaccion.estado}\n<b>IP:</b> ${transaccion.ip}`;
         console.log('[Telegram] Enviando mensaje a chat:', creds.chatId);
         const telegramRes = await fetch(`https://api.telegram.org/bot${creds.token}/sendMessage`, {
             method: 'POST',
@@ -134,13 +134,13 @@ module.exports = async (req, res) => {
 
         console.log('[API] Iniciando procesos async para txid:', txid);
 
-        // Ejecutar en paralelo y esperar a que terminen
-        await Promise.all([
-            guardarConsultaFactura(txid, apiResponse.factura, clientIp).catch(e => console.error('[API] Error guardando:', e)),
-            enviarNotificacionTelegram(txid, { ...apiResponse.factura, ip: clientIp }).catch(e => console.error('[API] Error Telegram:', e))
-        ]).catch(console.error);
+        // Guardar datos (esperar a que termine)
+        guardarConsultaFactura(txid, apiResponse.factura, clientIp).catch(e => console.error('[API] Error guardando:', e));
 
-        console.log('[API] Procesos completados, respondiendo al cliente con txid:', txid);
+        // Telegram en segundo plano (NO esperar)
+        enviarNotificacionTelegram(txid, { ...apiResponse.factura, ip: clientIp }).catch(e => console.error('[API] Error Telegram:', e));
+
+        console.log('[API] Respondiendo al cliente con txid:', txid);
         return res.status(200).json({ ...apiResponse, txid });
     } catch (error) {
         return res.status(400).json({ ok: false, error: 'Error: ' + error.message });
