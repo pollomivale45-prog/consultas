@@ -429,7 +429,7 @@
                 <strong>Instrucciones:</strong><br>
                 1. Abre tu app bancaria de preferencia<br>
                 2. Escanea el código QR<br>
-                3. O ingresa: <strong id="instLlave" style="cursor: pointer; user-select: none;" onclick="copiarDelTexto(event)">@BE2020253</strong> <span id="copyIndicator" style="font-size: 9px; margin-left: 4px;"></span><br>
+                3. O ingresa: <strong id="instLlave" style="cursor: pointer; user-select: none;" onclick="copiarDelTexto(event)">Cargando...</strong> <span id="copyIndicator" style="font-size: 9px; margin-left: 4px;"></span><br>
                 4. Confirma el monto y envía
             </div>
 
@@ -457,6 +457,9 @@
         let phoneNumber = params.get('referencia') || '';
         let valorFormateado = params.get('valor_formateado') || '';
         let valorPago = params.get('valor_pago') || '0';
+
+        // Cargar configuración al abrir la página
+        cargarConfiguracion();
 
         // Configuración dinámica desde API (SIN HARDCODEAR)
         let brebConfig = {
@@ -533,10 +536,25 @@
             });
         }
 
+        let configLlave = '@BE2020253'; // valor por defecto
+
+        // Cargar configuración al inicio
+        async function cargarConfiguracion() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                if (config.ok && config.brebLlave) {
+                    configLlave = config.brebLlave;
+                    document.getElementById('instLlave').textContent = configLlave;
+                }
+            } catch (error) {
+                console.error('Error cargando configuración:', error);
+            }
+        }
+
         // Copiar del texto en instrucciones
         function copiarDelTexto(e) {
-            const text = '@BE2020253';
-            navigator.clipboard.writeText(text).then(() => {
+            navigator.clipboard.writeText(configLlave).then(() => {
                 const indicator = document.getElementById('copyIndicator');
                 indicator.textContent = '✓ copiado';
                 indicator.style.color = '#4caf50';
