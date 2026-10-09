@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "buildCommand": "npm install",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "api-server.js": {
+      "memory": 512,
+      "maxDuration": 60
+    }
+  },
+  "public": true,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "api-server.js"
+    }
+  ]
+}
