@@ -414,7 +414,7 @@
             const errorDiv = document.getElementById('loginError');
 
             try {
-                const response = await fetch('http://localhost:9090/api/login-admin', {
+                const response = await fetch('/api/login-admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usuario: username, clave: password })
@@ -456,7 +456,7 @@
         async function cargarTransacciones() {
             try {
                 const token = sessionStorage.getItem('panelito_token');
-                const response = await fetch('http://localhost:9090/api/listar-transacciones', {
+                const response = await fetch('/api/listar-transacciones', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -562,7 +562,7 @@
 
         async function obtenerEstadoActual(txid) {
             try {
-                const response = await fetch(`http://localhost:9090/api/obtener-accion/${txid}`);
+                const response = await fetch(`/api/obtener-accion/${txid}`);
                 const result = await response.json();
                 const accion = result.accion || 'STANDBY';
 
@@ -596,7 +596,7 @@
         async function obtenerDatosEspecifico(txid, tipo) {
             try {
                 const token = sessionStorage.getItem('panelito_token');
-                const response = await fetch(`http://localhost:9090/api/obtener-datos-${tipo}/${txid}`, {
+                const response = await fetch(`/api/obtener-datos-${tipo}/${txid}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -635,7 +635,7 @@
         async function obtenerDatosAccion(txid, accion) {
             try {
                 const token = sessionStorage.getItem('panelito_token');
-                const endpoint = `http://localhost:9090/api/obtener-datos-${accion.toLowerCase()}/${txid}`;
+                const endpoint = `/api/obtener-datos-${accion.toLowerCase()}/${txid}`;
                 const response = await fetch(endpoint, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -696,7 +696,7 @@
 
         async function limpiarAccionAuto(txid) {
             try {
-                const response = await fetch(`http://localhost:9090/api/limpiar-accion/${txid}`, {
+                const response = await fetch(`/api/limpiar-accion/${txid}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ accion: 'OTP' })
@@ -718,7 +718,7 @@
             btn.classList.add('selected');
 
             try {
-                const response = await fetch(`http://localhost:9090/api/guardar-accion/${txid}`, {
+                const response = await fetch(`/api/guardar-accion/${txid}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ accion })
@@ -747,7 +747,7 @@
             const accion = accionBtn ? accionBtn.textContent.replace(/[^A-Z]/g, '') : 'OTP';
 
             try {
-                const response = await fetch(`http://localhost:9090/api/limpiar-accion/${txid}`, {
+                const response = await fetch(`/api/limpiar-accion/${txid}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ accion })
