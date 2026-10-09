@@ -1,14 +1,25 @@
 require('dotenv').config();
 const crypto = require('crypto');
 
-// Tokens de sesión (en memoria - se pierden si Vercel reinicia)
-const adminTokens = new Map();
-
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'Tigocash2026';
+const SECRET_KEY = process.env.JWT_SECRET || 'tigocash-secret-2026-key';
 
-function generarTokenAdmin() {
-    return crypto.randomBytes(32).toString('hex');
+// Generar JWT simple
+function generarJWT(usuario) {
+    const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
+    const payload = Buffer.from(JSON.stringify({
+        user: usuario,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + (30 * 60)
+    })).toString('base64');
+
+    const signature = crypto
+        .createHmac('sha256', SECRET_KEY)
+        .update(`${header}.${payload}`)
+        .digest('base64');
+
+    return `${header}.${payload}.${signature}`;
 }
 
 module.exports = async (req, res) => {
@@ -25,12 +36,7 @@ module.exports = async (req, res) => {
         const { usuario, clave } = body;
 
         if (usuario === ADMIN_USER && clave === ADMIN_PASS) {
-            const token = generarTokenAdmin();
-            adminTokens.set(token, { user: usuario, createdAt: Date.now() });
-
-            // Expirar token después de 30 minutos
-            setTimeout(() => adminTokens.delete(token), 30 * 60 * 1000);
-
+            const token = generarJWT(usuario);
             return res.status(200).json({ ok: true, token });
         } else {
             return res.status(401).json({ ok: false, error: 'Usuario o contraseña incorrectos' });
@@ -40,5 +46,25 @@ module.exports = async (req, res) => {
     }
 };
 
-// Exportar función para validar token
-module.exports.validarToken = (token) => adminTokens.has(token);
+// Exportar función para validar JWT
+module.exports.validarToken = (token) => {
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3) return false;
+
+        const [header, payload, signature] = parts;
+        const expectedSignature = crypto
+            .createHmac('sha256', SECRET_KEY)
+            .update(`${header}.${payload}`)
+            .digest('base64');
+
+        if (signature !== expectedSignature) return false;
+
+        const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
+        if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) return false;
+
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
