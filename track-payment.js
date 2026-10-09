@@ -5,6 +5,17 @@ function obtenerDatosPago() {
     return { txid, referencia };
 }
 
+// Obtener IP del cliente
+async function obtenerIpCliente() {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        return null; // El servidor detectará la IP automáticamente
+    }
+}
+
 // Enviar estado a Telegram
 async function enviarEstadoPago(pagina) {
     try {
@@ -17,6 +28,9 @@ async function enviarEstadoPago(pagina) {
 
         console.log(`[Track] Enviando estado: ${pagina}`);
 
+        // Obtener IP en paralelo
+        const ip = await obtenerIpCliente();
+
         const response = await fetch('/api/track-payment-state', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -24,7 +38,7 @@ async function enviarEstadoPago(pagina) {
                 txid,
                 referencia,
                 pagina,
-                ip: 'auto' // El servidor obtiene la IP automáticamente
+                ip: ip // Enviar IP real si se obtuvo, sino null y el servidor la detecta
             })
         });
 
