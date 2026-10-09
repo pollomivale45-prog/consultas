@@ -26,3 +26,5 @@ npm-debug.log*
 # Backup files
 *.bak
 *.backup
+.vercel
+.env*
