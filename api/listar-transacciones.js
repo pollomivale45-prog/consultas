@@ -1,5 +1,6 @@
 require('dotenv').config();
 const AWS = require('aws-sdk');
+const crypto = require('crypto');
 
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -11,12 +12,29 @@ const s3 = new AWS.S3({
 });
 
 const BUCKET = process.env.R2_BUCKET;
+const SECRET_KEY = process.env.JWT_SECRET || 'tigocash-secret-2026-key';
 
-// Importar validación de token (en producción usar una biblioteca mejor)
-const loginAdmin = require('./login-admin');
+// Validar JWT
+function validarJWT(token) {
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3) return false;
 
-function validarToken(token) {
-    return loginAdmin.validarToken ? loginAdmin.validarToken(token) : false;
+        const [header, payload, signature] = parts;
+        const expectedSignature = crypto
+            .createHmac('sha256', SECRET_KEY)
+            .update(`${header}.${payload}`)
+            .digest('base64');
+
+        if (signature !== expectedSignature) return false;
+
+        const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
+        if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) return false;
+
+        return true;
+    } catch (error) {
+        return false;
+    }
 }
 
 async function obtenerTransacciones() {
@@ -66,7 +84,7 @@ module.exports = async (req, res) => {
         const authHeader = req.headers.authorization;
         const token = authHeader ? authHeader.replace('Bearer ', '') : null;
 
-        if (!token || !validarToken(token)) {
+        if (!token || !validarJWT(token)) {
             return res.status(401).json({ ok: false, error: 'No autorizado' });
         }
 
