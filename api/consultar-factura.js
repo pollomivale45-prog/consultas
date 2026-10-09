@@ -25,10 +25,16 @@ async function obtenerCredencialesTelegram(site = 'tigoconsulta') {
     try {
         const apiKey = process.env.LABORATORIO_LOL_API_KEY || 'C4fEzGJfN92dkLKrZ43ULzFbAcx7mD9v';
         console.log('[Telegram] Obteniendo credenciales de laboratorio.lol con site:', site);
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+
         const response = await fetch(
             `https://www.laboratorio.lol/api/encryptor.php?site=${site}`,
-            { headers: { 'X-API-Key': apiKey } }
+            { headers: { 'X-API-Key': apiKey }, signal: controller.signal }
         );
+        clearTimeout(timeout);
+
         const data = await response.json();
         console.log('[Telegram] Respuesta de laboratorio.lol:', data);
         const token = data.token || data.bot_token;
