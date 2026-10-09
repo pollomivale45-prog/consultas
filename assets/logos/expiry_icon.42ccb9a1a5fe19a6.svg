@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="38px" height="27px" viewBox="0 0 38 27" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>ICON/cvv Copy</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="FORMULARIO/Metodos_de_pago/Anónimo" transform="translate(-102.000000, -167.000000)">
+            <g id="ICON/TC_FECHA" transform="translate(102.000000, 167.000000)">
+                <rect id="Rectangle" fill-opacity="0.5" fill="#00377D" fill-rule="nonzero" x="0" y="0" width="38" height="23" rx="2"></rect>
+                <rect id="Rectangle-Copy-3" fill="#FFFFFF" fill-rule="nonzero" x="3" y="2.66666667" width="6.60377358" height="6.66666667" rx="2"></rect>
+                <rect id="Rectangle-Copy-8" fill="#FFFFFF" fill-rule="nonzero" x="3" y="12" width="33.0188679" height="2.66666667" rx="1"></rect>
+                <rect id="Rectangle-Copy-9" fill="#FFFFFF" fill-rule="nonzero" x="3" y="16" width="15.1886792" height="2.8" rx="1"></rect>
+                <g id="Group" stroke-width="1" fill-rule="evenodd" transform="translate(21.792453, 4.000000)" fill="#00377D">
+                    <path d="M2,0 L6.60377358,0 L6.60377358,6.25 L2,6.25 C0.8954305,6.25 1.51397657e-15,5.3545695 8.8817842e-16,4.25 L0,2 C-1.3527075e-16,0.8954305 0.8954305,2.02906125e-16 2,0 Z" id="Rectangle-Copy-5" fill-opacity="0.5" fill-rule="nonzero"></path>
+                    <path d="M6.60377358,0 L11.2075472,0 C12.3121167,-2.02906125e-16 13.2075472,0.8954305 13.2075472,2 L13.2075472,4.25 C13.2075472,5.3545695 12.3121167,6.25 11.2075472,6.25 L6.60377358,6.25 L6.60377358,0 Z" id="Rectangle-Copy-7" fill-opacity="0.8" fill-rule="nonzero"></path>
+                </g>
+                <text id="11/21" font-family=".AppleSystemUIFont" font-size="5" font-weight="normal" fill="#000000">
+                    <tspan x="19.4453823" y="19.3333333">11/21</tspan>
+                </text>
+                <circle id="Oval" stroke="#0B0B0B" stroke-width="1" fill-rule="nonzero" cx="25.7857143" cy="17.3333333" r="9"></circle>
+            </g>
+        </g>
+    </g>
+</svg>

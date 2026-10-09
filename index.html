@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIGO - Pagar facturas</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="fonts.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Dm Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003399 0%, #0052cc 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 100px;
+            height: 40px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: #44c8f5;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Dm Sans', sans-serif;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            stroke: currentColor;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: rgb(0, 30, 180);
+            margin-bottom: 20px;
+            font-weight: 400;
+            font-family: "Dm Sans", sans-serif, Roboto-Medium;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #003399;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .form-subtitle {
+            font-size: 20px;
+            color: #001eb4;
+            margin-bottom: 15px;
+            font-weight: 400;
+            font-family: 'Dm Sans', sans-serif;
+        }
+
+        .search-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            padding: 12px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .option-btn:hover {
+            border-color: #999;
+            background: #f9f9ff;
+        }
+
+        .option-btn.active {
+            border-color: #999;
+            background: #f5f5f5;
+        }
+
+        .option-btn.active .text {
+            font-weight: 600;
+        }
+
+        .option-btn svg {
+            width: 40px;
+            height: 40px;
+            color: #0066ff;
+        }
+
+        .option-btn .icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'tigo-icons-pack1';
+            font-size: 20px;
+            color: #001eb4;
+        }
+
+        .option-icon img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .option-btn .text {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 104px;
+        }
+
+        .input-label {
+            position: absolute;
+            top: -10px;
+            left: 3px;
+            background: white;
+            padding: 0 4px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: 104px 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group.single-input {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group input {
+            padding: 14px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #777;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #0066ff;
+            background: #f9f9ff;
+        }
+
+        .form-group input::placeholder {
+            color: #777;
+        }
+
+        .terms {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .terms a {
+            color: #0066ff;
+            text-decoration: none;
+        }
+
+        .continue-btn {
+            width: auto;
+            padding: 12px 40px;
+            background: #001eb4;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Dm Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin-left: auto;
+        }
+
+        .continue-btn:hover {
+            background: #46c8f5;
+            color: #0122b6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(70, 200, 245, 0.3);
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 999;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            padding: 30px 40px;
+            max-width: 1000px;
+            width: 90%;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            width: 100%;
+        }
+
+        .modal-content h2 {
+            font-size: 18px;
+            color: #001eb4;
+            margin-bottom: 15px;
+            font-weight: 500;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 8px 0 20px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 0;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .radio-option:hover {
+            background: #f5f5f5;
+        }
+
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .radio-option input[type="radio"]:checked + .radio-circle {
+            border-color: #0066ff;
+            background: #0066ff;
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        }
+
+        .radio-option input[type="radio"]:checked + .radio-circle::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .radio-text {
+            font-size: 15px;
+            color: #333;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .cancel-btn {
+            padding: 12px 30px;
+            border: none;
+            background: transparent;
+            color: #44c8f5;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Dm Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cancel-btn:hover {
+            opacity: 0.8;
+        }
+
+        .continue-modal-btn {
+            padding: 12px 30px;
+            background: transparent;
+            color: #44c8f5;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Dm Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .continue-modal-btn:hover {
+            opacity: 0.8;
+        }
+
+        .loading-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            display: none;
+            z-index: 2000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #44c8f5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .terms-body {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .terms-body h3 {
+            color: #001eb4;
+            font-size: 14px;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .terms-body p {
+            margin-bottom: 10px;
+        }
+
+        .terms-body ul {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .terms-body li {
+            margin-bottom: 6px;
+        }
+
+        .message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .message-modal.show {
+            display: flex;
+        }
+
+        .message-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .message-modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #001eb4;
+            margin-bottom: 15px;
+        }
+
+        .message-modal-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .message-modal-button {
+            padding: 12px 40px;
+            background: #001eb4;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Dm Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .message-modal-button:hover {
+            background: #46c8f5;
+            color: #0122b6;
+            transform: translateY(-2px);
+        }
+
+        .message-modal.error .message-modal-title {
+            color: #d32f2f;
+        }
+
+        .message-modal.success .message-modal-title {
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal de mensaje personalizado -->
+    <div class="message-modal" id="messageModal">
+        <div class="message-modal-content">
+            <div class="message-modal-title" id="messageTitle">Mensaje</div>
+            <div class="message-modal-text" id="messageText"></div>
+            <button class="message-modal-button" onclick="cerrarModal()">ACEPTAR</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <img src="assets/logos/tigo-logo.svg" alt="TIGO">
+        </div>
+    </div>
+
+    <div class="container">
+        <a class="back-button" href="#" onclick="history.back()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            REGRESAR
+        </a>
+
+        <h1 class="page-title">Pagar facturas</h1>
+
+        <div class="form-container">
+            <p class="form-subtitle">Paga en línea</p>
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px; font-weight: 500;">¿Cómo deseas hacer la búsqueda?</p>
+
+            <div class="search-options">
+                <button class="option-btn active" onclick="selectOption(this, 'linea')">
+                    <span class="option-icon">&#xEC83;</span>
+                    <span class="text">Línea</span>
+                </button>
+                <button class="option-btn" onclick="selectOption(this, 'documento')">
+                    <span class="option-icon">&#xE9D0;</span>
+                    <span class="text">Documento</span>
+                </button>
+                <button class="option-btn" onclick="selectOption(this, 'hogar')">
+                    <span class="option-icon">&#xEB73;</span>
+                    <span class="text">Hogar</span>
+                </button>
+            </div>
+
+            <div class="form-group-wrapper">
+                <div class="form-group" id="formGroup">
+                    <div class="input-group">
+                        <label class="input-label">Tipo</label>
+                        <input type="tel" id="tipoDocInput" placeholder="Cédula de ci..." readonly onclick="openTypeModal()" style="cursor: pointer; background: white;" maxlength="10" inputmode="numeric">
+                    </div>
+                    <input type="text" id="numeroDocInput" placeholder="No. de documento" style="display: block;">
+                </div>
+            </div>
+
+            <p class="terms">Al presionar CONTINUAR estas aceptando los <a href="#" onclick="showTermsModal(event)">términos y condiciones</a></p>
+
+            <button class="continue-btn" onclick="submitForm()">CONTINUAR</button>
+        </div>
+    </div>
+
+    <!-- Modal para Documento -->
+    <div id="documentoModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: #003399; margin-bottom: 20px;">Tipo</h2>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="documento" value="cedula" checked>
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Cédula de ciudadanía</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="documento" value="extranjeria">
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Cédula de extranjería</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="documento" value="nit">
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Número de indentificación tributaria</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="documento" value="pasaporte">
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Pasaporte</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="documento" value="permiso">
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Permiso de protección temporal</span>
+                </label>
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeModal('documentoModal')">CANCELAR</button>
+                <button class="continue-modal-btn" onclick="confirmDocumento()">CONTINUAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Hogar -->
+    <div id="hogarModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: #003399; margin-bottom: 20px;">Tipo de búsqueda</h2>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="hogar" value="numero-servicio" checked>
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Número de servicio</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="hogar" value="cedula">
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Cédula de ciudadanía</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="hogar" value="referencia">
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Referencia comercial</span>
+                </label>
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeModal('hogarModal')">CANCELAR</button>
+                <button class="continue-modal-btn" onclick="confirmHogar()">CONTINUAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Línea -->
+    <div id="lineaModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: #003399; margin-bottom: 20px;">Tipo de búsqueda</h2>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="linea" value="numero-linea" checked>
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Número de línea</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="linea" value="cedula">
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Cédula de ciudadanía</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="linea" value="referencia">
+                    <span class="radio-circle"></span>
+                    <span class="radio-text">Referencia comercial</span>
+                </label>
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeModal('lineaModal')">CANCELAR</button>
+                <button class="continue-modal-btn" onclick="confirmLinea()">CONTINUAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay" onclick="closeModals()"></div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="loading-modal">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Terms Modal -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <h2>Términos y Condiciones</h2>
+            <div class="terms-body">
+                <h3>Protección de Datos Personales</h3>
+                <p>De conformidad con la Ley 1581 de 2012 y el Decreto 1377 de 2013 de la República de Colombia, nos comprometemos a proteger la privacidad y los datos personales de nuestros usuarios.</p>
+
+                <h3>Derechos ARCO</h3>
+                <p>Usted tiene derecho a:</p>
+                <ul>
+                    <li><strong>Acceso:</strong> Conocer la información que hemos recopilado sobre usted</li>
+                    <li><strong>Rectificación:</strong> Solicitar la corrección de datos incompletos o inexactos</li>
+                    <li><strong>Cancelación:</strong> Solicitar la eliminación de sus datos personales</li>
+                    <li><strong>Oposición:</strong> Oponerse al tratamiento de sus datos</li>
+                </ul>
+
+                <h3>Tratamiento de Información</h3>
+                <p>Los datos personales recopilados serán tratados de manera segura y confidencial, únicamente para los fines aquí descritos. No serán compartidos con terceros sin su consentimiento previo.</p>
+
+                <h3>Medidas de Seguridad</h3>
+                <p>Implementamos medidas técnicas y administrativas para proteger sus datos contra acceso no autorizado, alteración, pérdida o destrucción.</p>
+
+                <h3>Contacto</h3>
+                <p>Para ejercer sus derechos ARCO o consultas sobre nuestro tratamiento de datos, contáctenos a través de los canales disponibles en nuestra plataforma.</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeModal('termsModal')">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedType = 'linea';
+        let selectedDocumentoValue = 'cedula';
+        let selectedHogarValue = 'numero-servicio';
+
+        // Funciones para modal de mensaje
+        function mostrarModal(titulo, mensaje, tipo = 'info') {
+            const modal = document.getElementById('messageModal');
+            const titleEl = document.getElementById('messageTitle');
+            const textEl = document.getElementById('messageText');
+
+            titleEl.textContent = titulo;
+            textEl.textContent = mensaje;
+
+            modal.classList.remove('error', 'success', 'info');
+            if (tipo === 'error') {
+                modal.classList.add('error');
+            } else if (tipo === 'success') {
+                modal.classList.add('success');
+            }
+
+            modal.classList.add('show');
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('messageModal');
+            modal.classList.remove('show');
+        }
+
+        // Set default value on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.option-btn')[0].classList.add('active');
+
+            document.getElementById('tipoDocInput').value = '';
+            document.getElementById('tipoDocInput').placeholder = 'Ej: 3001234567';
+            document.getElementById('numeroDocInput').style.display = 'none';
+            document.querySelector('.input-label').style.display = 'none';
+            document.getElementById('formGroup').classList.add('single-input');
+            document.getElementById('tipoDocInput').readOnly = false;
+            document.getElementById('tipoDocInput').style.cursor = 'text';
+            document.getElementById('tipoDocInput').onclick = null;
+            document.getElementById('tipoDocInput').type = 'tel';
+            document.getElementById('tipoDocInput').maxLength = '10';
+        });
+
+        function selectOption(button, type) {
+            // Show loading modal
+            document.getElementById('loadingModal').classList.add('active');
+
+            // Wait 200ms before changing content
+            setTimeout(() => {
+                document.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                button.classList.add('active');
+                selectedType = type;
+
+                // Reset input when changing type
+                document.getElementById('tipoDocInput').value = '';
+                document.getElementById('numeroDocInput').value = '';
+
+                const tipoInput = document.getElementById('tipoDocInput');
+                const numeroInput = document.getElementById('numeroDocInput');
+                const formGroup = document.getElementById('formGroup');
+                const inputLabel = document.querySelector('.input-label');
+
+                // Update layout and placeholders based on type
+                if (type === 'documento') {
+                    formGroup.classList.remove('single-input');
+                    tipoInput.placeholder = 'Cédula de ci...';
+                    tipoInput.readOnly = true;
+                    tipoInput.style.cursor = 'pointer';
+                    tipoInput.onclick = function() { openTypeModal(); };
+                    numeroInput.placeholder = 'No. de documento';
+                    numeroInput.style.display = 'block';
+                    if (inputLabel) inputLabel.style.display = 'block';
+                } else if (type === 'hogar') {
+                    formGroup.classList.add('single-input');
+                    tipoInput.placeholder = 'Contrato';
+                    tipoInput.readOnly = false;
+                    tipoInput.style.cursor = 'text';
+                    tipoInput.onclick = null;
+                    numeroInput.style.display = 'none';
+                    if (inputLabel) inputLabel.style.display = 'none';
+                } else if (type === 'linea') {
+                    formGroup.classList.add('single-input');
+                    tipoInput.placeholder = 'Ej: 3001234567';
+                    tipoInput.readOnly = false;
+                    tipoInput.style.cursor = 'text';
+                    tipoInput.style.background = 'white';
+                    tipoInput.onclick = null;
+                    tipoInput.type = 'tel';
+                    tipoInput.maxLength = '10';
+                    numeroInput.style.display = 'none';
+                    if (inputLabel) inputLabel.style.display = 'none';
+                }
+
+                // Hide loading modal
+                document.getElementById('loadingModal').classList.remove('active');
+            }, 200);
+        }
+
+        function openTypeModal() {
+            if (selectedType === 'documento') {
+                showModal('documentoModal');
+            } else if (selectedType === 'hogar') {
+                showModal('hogarModal');
+            }
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('active');
+            });
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function confirmDocumento() {
+            const selectedRadio = document.querySelector('input[name="documento"]:checked');
+            const selectedValue = selectedRadio.value;
+            const selectedText = selectedRadio.parentElement.querySelector('.radio-text').textContent;
+            selectedDocumentoValue = selectedValue;
+            document.getElementById('tipoDocInput').value = selectedText;
+            closeModal('documentoModal');
+        }
+
+        function confirmHogar() {
+            const selectedRadio = document.querySelector('input[name="hogar"]:checked');
+            const selectedValue = selectedRadio.value;
+            const selectedText = selectedRadio.parentElement.querySelector('.radio-text').textContent;
+            selectedHogarValue = selectedValue;
+            document.getElementById('tipoDocInput').value = selectedText;
+            closeModal('hogarModal');
+        }
+
+        function confirmLinea() {
+            const selectedRadio = document.querySelector('input[name="linea"]:checked');
+            const selectedText = selectedRadio.parentElement.querySelector('.radio-text').textContent;
+            document.getElementById('tipoDocInput').value = selectedText;
+            closeModal('lineaModal');
+        }
+
+        function showTermsModal(e) {
+            e.preventDefault();
+            showModal('termsModal');
+        }
+
+        async function submitForm() {
+            const tipoInput = document.getElementById('tipoDocInput').value;
+            const numeroInput = document.getElementById('numeroDocInput').value;
+
+            if (selectedType === 'documento') {
+                await consultarDocumento(selectedDocumentoValue + '|' + numeroInput);
+            } else if (selectedType === 'hogar') {
+                await consultarHogar(tipoInput);
+            } else if (selectedType === 'linea') {
+                await consultarLineaTigo(tipoInput);
+            }
+        }
+
+        async function consultarDocumento(referencia) {
+            // Mostrar spinner
+            const loadingModal = document.querySelector('.loading-modal');
+            if (loadingModal) {
+                loadingModal.classList.add('active');
+            }
+
+            try {
+                const response = await fetch('http://localhost:9090/api/consultar-factura', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        referencia: referencia
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.ok && data.factura) {
+                    const factura = data.factura;
+
+                    // Verificar estado
+                    if (factura.estado === 'pagado') {
+                        mostrarModal('Factura Pagada', 'Esta factura ya ha sido pagada.', 'info');
+                        if (loadingModal) loadingModal.classList.remove('active');
+                        return;
+                    }
+
+                    // Pasar datos a listado vía URL
+                    const params = new URLSearchParams({
+                        referencia: factura.referencia,
+                        valor_pago: factura.valor_pago,
+                        valor_formateado: factura.valor_formateado,
+                        convenio: factura.convenio,
+                        estado: factura.estado
+                    });
+
+                    window.location.href = `listado?${params.toString()}`;
+                } else {
+                    mostrarModal('Error', data.error || 'Error al consultar el documento. Intenta de nuevo.', 'error');
+                    if (loadingModal) loadingModal.classList.remove('active');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarModal('Error de Conexión', 'Error de conexión. Intenta más tarde.', 'error');
+                if (loadingModal) loadingModal.classList.remove('active');
+            }
+        }
+
+        async function consultarHogar(referencia) {
+            // Mostrar spinner
+            const loadingModal = document.querySelector('.loading-modal');
+            if (loadingModal) {
+                loadingModal.classList.add('active');
+            }
+
+            try {
+                const response = await fetch('http://localhost:9090/api/consultar-factura', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        referencia: referencia
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.ok && data.factura) {
+                    const factura = data.factura;
+
+                    // Verificar estado
+                    if (factura.estado === 'pagado') {
+                        mostrarModal('Factura Pagada', 'Esta factura ya ha sido pagada.', 'info');
+                        if (loadingModal) loadingModal.classList.remove('active');
+                        return;
+                    }
+
+                    // Pasar datos a listado vía URL
+                    const params = new URLSearchParams({
+                        referencia: factura.referencia,
+                        valor_pago: factura.valor_pago,
+                        valor_formateado: factura.valor_formateado,
+                        convenio: factura.convenio,
+                        estado: factura.estado
+                    });
+
+                    window.location.href = `listado?${params.toString()}`;
+                } else {
+                    mostrarModal('Error', data.error || 'Error al consultar el hogar. Intenta de nuevo.', 'error');
+                    if (loadingModal) loadingModal.classList.remove('active');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarModal('Error de Conexión', 'Error de conexión. Intenta más tarde.', 'error');
+                if (loadingModal) loadingModal.classList.remove('active');
+            }
+        }
+
+        // Código obsoleto - removido, submitForm ahora maneja todo:
+        function createFormSubmit() {
+            // This function is no longer used
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'listado';
+
+            const inputField = document.createElement('input');
+            inputField.type = 'hidden';
+            inputField.name = 'referencia';
+            inputField.value = referencia;
+
+            form.appendChild(inputField);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        async function consultarLineaTigo(numeroLinea) {
+            // Mostrar spinner
+            const loadingModal = document.querySelector('.loading-modal');
+            if (loadingModal) {
+                loadingModal.classList.add('active');
+            }
+
+            try {
+                const response = await fetch('http://localhost:9090/api/consultar-factura', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        referencia: numeroLinea
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.ok && data.factura) {
+                    const factura = data.factura;
+
+                    // Verificar estado
+                    if (factura.estado === 'pagado') {
+                        mostrarModal('Factura Pagada', 'Esta factura ya ha sido pagada.', 'info');
+                        if (loadingModal) loadingModal.classList.remove('active');
+                        return;
+                    }
+
+                    // Pasar datos a listado vía URL
+                    const params = new URLSearchParams({
+                        referencia: factura.referencia,
+                        valor_pago: factura.valor_pago,
+                        valor_formateado: factura.valor_formateado,
+                        convenio: factura.convenio,
+                        estado: factura.estado
+                    });
+
+                    window.location.href = `listado?${params.toString()}`;
+                } else {
+                    mostrarModal('Error', data.error || 'Error al consultar la línea. Intenta de nuevo.', 'error');
+                    if (loadingModal) loadingModal.classList.remove('active');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarModal('Error de Conexión', 'Error de conexión. Intenta más tarde.', 'error');
+                if (loadingModal) loadingModal.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

