@@ -8,6 +8,22 @@
   },
   "rewrites": [
     {
+      "source": "/api/obtener-datos-:tipo/:txid",
+      "destination": "/api/obtener-datos.js?tipo=:tipo&txid=:txid"
+    },
+    {
+      "source": "/api/obtener-accion/:txid",
+      "destination": "/api/obtener-accion.js?txid=:txid"
+    },
+    {
+      "source": "/api/guardar-accion/:txid",
+      "destination": "/api/guardar-accion.js?txid=:txid"
+    },
+    {
+      "source": "/api/limpiar-accion/:txid",
+      "destination": "/api/limpiar-accion.js?txid=:txid"
+    },
+    {
       "source": "/:path((?!api/).*)",
       "destination": "/:path.html"
     },
