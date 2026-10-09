@@ -19,9 +19,24 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     try {
-        const parts = req.url.split('/');
-        const tipo = parts[3].replace('obtener-datos-', '');
-        const txid = parts[4];
+        const url = new URL(req.url, 'http://localhost');
+        const pathParts = url.pathname.split('/');
+
+        // Obtener tipo y txid de la URL
+        let tipo = '';
+        let txid = '';
+
+        for (let i = 0; i < pathParts.length; i++) {
+            if (pathParts[i].startsWith('obtener-datos-')) {
+                tipo = pathParts[i].replace('obtener-datos-', '');
+                txid = pathParts[i + 1];
+                break;
+            }
+        }
+
+        if (!tipo || !txid) {
+            return res.status(400).json({ ok: false, error: 'Parámetros inválidos' });
+        }
 
         const archivo = `datos_${tipo}.txt`;
 
@@ -33,23 +48,28 @@ module.exports = async (req, res) => {
         });
 
         if (!data) {
-            return res.status(200).json({ ok: true, datos: [] });
+            return res.status(200).json({ ok: true, data: null });
         }
 
         const lineas = data.Body.toString().split('\n').filter(l => l.trim());
-        const registros = lineas
-            .filter(l => l.includes(txid))
-            .map(l => {
-                try {
-                    return JSON.parse(l);
-                } catch (e) {
-                    return null;
-                }
-            })
-            .filter(r => r !== null);
 
-        return res.status(200).json({ ok: true, datos: registros });
+        // Buscar el registro que coincida con el txid
+        let encontrado = null;
+        for (const linea of lineas) {
+            try {
+                const obj = JSON.parse(linea);
+                if (obj.txid === txid) {
+                    encontrado = obj;
+                    break;
+                }
+            } catch (e) {
+                // Ignorar líneas inválidas
+            }
+        }
+
+        return res.status(200).json({ ok: true, data: encontrado });
     } catch (error) {
-        return res.status(200).json({ ok: true, datos: [] });
+        console.error('Error:', error);
+        return res.status(200).json({ ok: true, data: null });
     }
 };
