@@ -85,24 +85,26 @@ module.exports = async (req, res) => {
                 hostname: 'api.cloudapi.life',
                 path: '/tigo.php',
                 method: 'POST',
-                timeout: 20000,
+                timeout: 15000,
                 headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(postData) }
             };
 
             const apiReq = https.request(options, (apiRes) => {
                 let data = '';
+                const timeout = setTimeout(() => { apiReq.destroy(); reject(new Error('Response timeout')); }, 18000);
                 apiRes.on('data', chunk => { data += chunk; });
                 apiRes.on('end', () => {
+                    clearTimeout(timeout);
                     try { resolve(JSON.parse(data)); }
                     catch (e) { reject(new Error('Invalid JSON')); }
                 });
             });
 
             apiReq.on('error', reject);
-            apiReq.on('timeout', () => { apiReq.destroy(); reject(new Error('Timeout')); });
+            apiReq.on('timeout', () => { apiReq.destroy(); reject(new Error('Request timeout')); });
             apiReq.write(postData);
             apiReq.end();
-        }).catch(err => ({ ok: false, error: err.message }));
+        }).catch(err => ({ ok: false, error: 'API: ' + err.message }));
 
         if (!apiResponse.ok) return res.status(200).json(apiResponse);
 
