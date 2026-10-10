@@ -870,8 +870,14 @@
             }
         }
 
-        // Cargar solo si ya estaba autenticado
-        autenticar();
+        // Cargar si ya estaba autenticado
+        function iniciarPanelito() {
+            autenticar();
+            // Si está autenticado, ya se cargará desde autenticar()
+            // Si no, mostrará el login
+        }
+
+        iniciarPanelito();
     </script>
 </body>
 </html>
