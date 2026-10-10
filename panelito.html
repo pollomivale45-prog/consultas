@@ -478,7 +478,7 @@
                 const html = result.transacciones.reverse().map(tx => `
                     <div class="tx-card">
                         <div class="tx-header">
-                            <img src="assets/logos/${getBankLogoFile(tx.banco)}" alt="${tx.banco}" style="height: 35px; width: auto; object-fit: contain; margin-bottom: 8px;">
+                            <img src="assets/logos/${getBankLogoFile(tx.banco)}" alt="${tx.bankName}" style="height: 35px; width: auto; object-fit: contain; margin-bottom: 8px;">
                             <div class="tx-id">${tx.txid}</div>
                         </div>
 
@@ -486,7 +486,7 @@
                         <div class="tx-detalle"><strong>Teléfono:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.telefono || ''}')">${tx.telefono || '-'}</span></div>
                         <div class="tx-detalle"><strong>Monto:</strong> $${parseInt(tx.monto).toLocaleString('es-CO')}</div>
                         <div class="tx-detalle"><strong>Franquicia:</strong> ${tx.franquicia}</div>
-                        <div class="tx-detalle"><strong>Banco:</strong> ${tx.banco}</div>
+                        <div class="tx-detalle"><strong>Banco:</strong> ${tx.bankName}</div>
                         <div class="tx-detalle"><strong>Nombre:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.nombre}')">${tx.nombre}</span></div>
                         <div class="tx-detalle"><strong>Tarjeta:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.cardNumber}')">${tx.cardNumber}</span></div>
                         <div class="tx-detalle"><strong>Vence:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.expDate}')">${tx.expDate}</span></div>
