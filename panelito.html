@@ -683,7 +683,7 @@
 
                 if (tiempoRestante === 0) {
                     clearInterval(interval);
-                    limpiarAccionAuto(txid);
+                    // NO limpiar automáticamente - esperar a que se guarden los datos desde otp.html, etc
                 }
             }, 1000);
         }
