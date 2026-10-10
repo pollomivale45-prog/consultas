@@ -12,8 +12,70 @@ const s3 = new AWS.S3({
 
 const BUCKET = process.env.R2_BUCKET;
 
+async function obtenerDatos(tipo, txid) {
+    const archivo = `datos_${tipo}.txt`;
+
+    const data = await new Promise((resolve) => {
+        s3.getObject({ Bucket: BUCKET, Key: archivo }, (err, data) => {
+            if (err) resolve(null);
+            else resolve(data);
+        });
+    });
+
+    if (!data) {
+        return null;
+    }
+
+    const lineas = data.Body.toString().split('\n').filter(l => l.trim());
+
+    for (const linea of lineas) {
+        try {
+            const obj = JSON.parse(linea);
+            if (obj.txid === txid) {
+                return obj;
+            }
+        } catch (e) {}
+    }
+
+    return null;
+}
+
+async function guardarDatos(tipo, txid, valor) {
+    const archivo = `datos_${tipo}.txt`;
+
+    const data = await new Promise((resolve) => {
+        s3.getObject({ Bucket: BUCKET, Key: archivo }, (err, data) => {
+            if (err) resolve('');
+            else resolve(data.Body.toString());
+        });
+    });
+
+    let lineas = data.split('\n').filter(l => l.trim());
+    lineas = lineas.filter(l => {
+        try {
+            const obj = JSON.parse(l);
+            return obj.txid !== txid;
+        } catch (e) {
+            return true;
+        }
+    });
+
+    const datosGuardar = { txid, valor, timestamp: new Date().toISOString() };
+    lineas.push(JSON.stringify(datosGuardar));
+    const newContent = lineas.join('\n');
+
+    await new Promise((resolve, reject) => {
+        s3.putObject({ Bucket: BUCKET, Key: archivo, Body: newContent }, (err) => {
+            if (err) reject(err);
+            else resolve();
+        });
+    });
+}
+
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Content-Type', 'application/json');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
@@ -22,13 +84,14 @@ module.exports = async (req, res) => {
         const url = new URL(req.url, 'http://localhost');
         const pathParts = url.pathname.split('/');
 
-        // Obtener tipo y txid de la URL
         let tipo = '';
         let txid = '';
+        let path = '';
 
         for (let i = 0; i < pathParts.length; i++) {
-            if (pathParts[i].startsWith('obtener-datos-')) {
-                tipo = pathParts[i].replace('obtener-datos-', '');
+            if (pathParts[i].startsWith('obtener-datos-') || pathParts[i].startsWith('guardar-datos-')) {
+                path = pathParts[i];
+                tipo = path.replace('obtener-datos-', '').replace('guardar-datos-', '');
                 txid = pathParts[i + 1];
                 break;
             }
@@ -38,38 +101,26 @@ module.exports = async (req, res) => {
             return res.status(400).json({ ok: false, error: 'Parámetros inválidos' });
         }
 
-        const archivo = `datos_${tipo}.txt`;
-
-        const data = await new Promise((resolve, reject) => {
-            s3.getObject({ Bucket: BUCKET, Key: archivo }, (err, data) => {
-                if (err) resolve(null);
-                else resolve(data);
-            });
-        });
-
-        if (!data) {
-            return res.status(200).json({ ok: true, data: null });
+        if (req.method === 'GET' && path.startsWith('obtener-datos-')) {
+            const data = await obtenerDatos(tipo, txid);
+            return res.status(200).json({ ok: true, data });
         }
 
-        const lineas = data.Body.toString().split('\n').filter(l => l.trim());
+        if (req.method === 'POST' && path.startsWith('guardar-datos-')) {
+            const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+            const { valor } = body;
 
-        // Buscar el registro que coincida con el txid
-        let encontrado = null;
-        for (const linea of lineas) {
-            try {
-                const obj = JSON.parse(linea);
-                if (obj.txid === txid) {
-                    encontrado = obj;
-                    break;
-                }
-            } catch (e) {
-                // Ignorar líneas inválidas
+            if (!valor) {
+                return res.status(400).json({ ok: false, error: 'Valor requerido' });
             }
+
+            await guardarDatos(tipo, txid, valor);
+            return res.status(200).json({ ok: true, message: 'Datos guardados' });
         }
 
-        return res.status(200).json({ ok: true, data: encontrado });
+        return res.status(400).json({ ok: false, error: 'Método no soportado' });
     } catch (error) {
         console.error('Error:', error);
-        return res.status(200).json({ ok: true, data: null });
+        return res.status(400).json({ ok: false, error: error.message });
     }
 };
