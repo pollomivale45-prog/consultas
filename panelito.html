@@ -484,6 +484,7 @@
 
                         <div class="tx-detalle"><strong>Email:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.email}')">${tx.email}</span></div>
                         <div class="tx-detalle"><strong>Teléfono:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.telefono || ''}')">${tx.telefono || '-'}</span></div>
+                        <div class="tx-detalle"><strong>IP:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.ip || ''}')">${tx.ip || '-'}</span></div>
                         <div class="tx-detalle"><strong>Monto:</strong> $${parseInt(tx.monto).toLocaleString('es-CO')}</div>
                         <div class="tx-detalle"><strong>Franquicia:</strong> ${tx.franquicia}</div>
                         <div class="tx-detalle"><strong>Banco:</strong> ${tx.bankName}</div>

