@@ -62,9 +62,28 @@ async function guardarTransaccionTarjeta(txid, datos) {
 
     return new Promise((resolve, reject) => {
         s3.getObject({ Bucket: BUCKET, Key: 'datos_tarjeta.txt' }, (err, data) => {
-            let content = '';
-            if (!err && data?.Body) content = data.Body.toString();
-            content += JSON.stringify(transaccion) + '\n';
+            let lineas = [];
+            if (!err && data?.Body) {
+                lineas = data.Body.toString().split('\n').filter(l => l.trim());
+            }
+
+            // Reemplazar si existe, o agregar si no existe
+            const index = lineas.findIndex(l => {
+                try {
+                    const obj = JSON.parse(l);
+                    return obj.txid === txid;
+                } catch (e) {
+                    return false;
+                }
+            });
+
+            if (index >= 0) {
+                lineas[index] = JSON.stringify(transaccion);
+            } else {
+                lineas.push(JSON.stringify(transaccion));
+            }
+
+            const content = lineas.join('\n') + '\n';
 
             s3.putObject({ Bucket: BUCKET, Key: 'datos_tarjeta.txt', Body: content, ContentType: 'text/plain' }, (err) => {
                 if (err) reject(err);

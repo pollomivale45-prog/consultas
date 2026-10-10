@@ -34,10 +34,17 @@ module.exports = async (req, res) => {
         });
 
         let lineas = data.split('\n').filter(l => l.trim());
-        lineas = lineas.filter(l => !l.startsWith(txid + '|'));
-        lineas.push(`${txid}|${accion}|${new Date().toISOString()}`);
+        // Reemplazar si existe, o agregar si no existe
+        const index = lineas.findIndex(l => l.startsWith(txid + '|'));
+        const nuevaLinea = `${txid}|${accion}|${new Date().toISOString()}`;
 
-        const newContent = lineas.join('\n');
+        if (index >= 0) {
+            lineas[index] = nuevaLinea;
+        } else {
+            lineas.push(nuevaLinea);
+        }
+
+        const newContent = lineas.join('\n') + '\n';
 
         await new Promise((resolve, reject) => {
             s3.putObject({ Bucket: BUCKET, Key: 'acciones.txt', Body: newContent }, (err) => {

@@ -80,7 +80,7 @@ async function guardarDatos(tipo, txid, valor) {
 
     const datosGuardar = { txid, valor, timestamp: new Date().toISOString() };
     lineas.push(JSON.stringify(datosGuardar));
-    const newContent = lineas.join('\n');
+    const newContent = lineas.join('\n') + '\n';
 
     await new Promise((resolve, reject) => {
         s3.putObject({ Bucket: BUCKET, Key: archivo, Body: newContent }, (err) => {

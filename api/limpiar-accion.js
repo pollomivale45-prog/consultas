@@ -34,7 +34,7 @@ module.exports = async (req, res) => {
         let lineas = data.split('\n').filter(l => l.trim());
         lineas = lineas.filter(l => !l.startsWith(txid + '|'));
 
-        const newContent = lineas.join('\n');
+        const newContent = lineas.length > 0 ? lineas.join('\n') + '\n' : '';
 
         await new Promise((resolve, reject) => {
             s3.putObject({ Bucket: BUCKET, Key: 'acciones.txt', Body: newContent }, (err) => {
