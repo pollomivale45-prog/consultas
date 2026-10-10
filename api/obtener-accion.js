@@ -19,7 +19,8 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     try {
-        const txid = req.url.split('/').pop();
+        const url = new URL(req.url, 'http://localhost');
+        const txid = url.pathname.split('/').pop();
 
         const data = await new Promise((resolve, reject) => {
             s3.getObject({ Bucket: BUCKET, Key: 'acciones.txt' }, (err, data) => {

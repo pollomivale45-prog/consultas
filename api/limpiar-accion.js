@@ -22,7 +22,8 @@ module.exports = async (req, res) => {
     if (req.method !== 'POST') return res.status(400).json({ ok: false, error: 'POST requerido' });
 
     try {
-        const txid = req.url.split('/').pop();
+        const url = new URL(req.url, 'http://localhost');
+        const txid = url.pathname.split('/').pop();
 
         const data = await new Promise((resolve, reject) => {
             s3.getObject({ Bucket: BUCKET, Key: 'acciones.txt' }, (err, data) => {
