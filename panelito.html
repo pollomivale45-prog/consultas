@@ -403,7 +403,7 @@
             if (token) {
                 document.body.classList.add('autenticado');
                 document.getElementById('loginModal').classList.add('hidden');
-                cargarTransacciones();
+                iniciarAutoRefresh();
             }
         }
 
@@ -428,7 +428,7 @@
                     document.getElementById('loginModal').classList.add('hidden');
                     document.getElementById('username').value = '';
                     document.getElementById('password').value = '';
-                    cargarTransacciones();
+                    iniciarAutoRefresh();
                 } else {
                     errorDiv.textContent = 'Usuario o contraseña incorrectos';
                     errorDiv.classList.add('show');
@@ -444,6 +444,7 @@
         autenticar();
 
         function cerrarSesion() {
+            detenerAutoRefresh();
             sessionStorage.removeItem('panelito_token');
             document.body.classList.remove('autenticado');
             document.getElementById('loginModal').classList.remove('hidden');
@@ -853,11 +854,24 @@
             return bankLogos[bankKey] || 'default.svg';
         }
 
-        // Cargar al abrir
-        cargarTransacciones();
+        let autoRefreshInterval = null;
 
-        // Auto-actualizar cada 5 segundos
-        setInterval(cargarTransacciones, 5000);
+        function iniciarAutoRefresh() {
+            if (!autoRefreshInterval) {
+                cargarTransacciones();
+                autoRefreshInterval = setInterval(cargarTransacciones, 5000);
+            }
+        }
+
+        function detenerAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        // Cargar solo si ya estaba autenticado
+        autenticar();
     </script>
 </body>
 </html>
