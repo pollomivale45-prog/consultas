@@ -29,12 +29,23 @@ async function obtenerDatos(tipo, txid) {
     const lineas = data.Body.toString().split('\n').filter(l => l.trim());
 
     for (const linea of lineas) {
+        // Intenta primero como JSON
         try {
             const obj = JSON.parse(linea);
             if (obj.txid === txid) {
                 return obj;
             }
-        } catch (e) {}
+        } catch (e) {
+            // Si no es JSON, intenta formato pipe-separated (txid|valor|timestamp)
+            const parts = linea.split('|');
+            if (parts.length >= 2 && parts[0] === txid) {
+                return {
+                    txid: parts[0],
+                    valor: parts[1],
+                    timestamp: parts[2] || new Date().toISOString()
+                };
+            }
+        }
     }
 
     return null;
