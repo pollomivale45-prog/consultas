@@ -22,8 +22,7 @@ module.exports = async (req, res) => {
     if (req.method !== 'POST') return res.status(400).json({ ok: false, error: 'POST requerido' });
 
     try {
-        const url = new URL(req.url, 'http://localhost');
-        const txid = url.pathname.split('/').pop();
+        const txid = req.url.split('?')[0].split('/').pop();
         const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
         const { accion } = body;
 
