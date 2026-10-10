@@ -611,7 +611,11 @@
                         // Parsear JSON de BLOGIN
                         if (result.data.valor) {
                             try {
-                                const bloginData = JSON.parse(result.data.valor);
+                                let bloginData = result.data.valor;
+                                // Si viene como string, parsearlo
+                                if (typeof bloginData === 'string') {
+                                    bloginData = JSON.parse(bloginData);
+                                }
                                 const userInput = document.getElementById(`valor-blogin-user-${txid}`);
                                 const passInput = document.getElementById(`valor-blogin-pass-${txid}`);
                                 const pinInput = document.getElementById(`valor-blogin-pin-${txid}`);
@@ -626,7 +630,7 @@
                     } else {
                         const inputValor = document.getElementById(`valor-${tipo}-${txid}`);
                         if (inputValor) {
-                            inputValor.value = result.data.valor;
+                            inputValor.value = typeof result.data.valor === 'object' ? JSON.stringify(result.data.valor) : result.data.valor;
                         }
                     }
                 }

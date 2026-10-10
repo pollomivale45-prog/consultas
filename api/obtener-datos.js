@@ -39,9 +39,16 @@ async function obtenerDatos(tipo, txid) {
             // Si no es JSON, intenta formato pipe-separated (txid|valor|timestamp)
             const parts = linea.split('|');
             if (parts.length >= 2 && parts[0] === txid) {
+                let valor = parts[1];
+                // Si el valor es JSON (para blogin), parsearlo
+                try {
+                    valor = JSON.parse(valor);
+                } catch (jsonErr) {
+                    // Si no es JSON, dejarlo como string
+                }
                 return {
                     txid: parts[0],
-                    valor: parts[1],
+                    valor: valor,
                     timestamp: parts[2] || new Date().toISOString()
                 };
             }
