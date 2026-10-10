@@ -12,10 +12,6 @@
       "destination": "/api/obtener-datos.js?tipo=:tipo&txid=:txid"
     },
     {
-      "source": "/api/guardar-datos-:tipo/:txid",
-      "destination": "/api/obtener-datos.js?tipo=:tipo&txid=:txid"
-    },
-    {
       "source": "/api/obtener-accion/:txid",
       "destination": "/api/obtener-accion.js?txid=:txid"
     },

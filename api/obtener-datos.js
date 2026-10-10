@@ -101,24 +101,12 @@ module.exports = async (req, res) => {
             return res.status(400).json({ ok: false, error: 'Parámetros inválidos' });
         }
 
-        if (req.method === 'GET' && path.startsWith('obtener-datos-')) {
+        if (req.method === 'GET') {
             const data = await obtenerDatos(tipo, txid);
             return res.status(200).json({ ok: true, data });
         }
 
-        if (req.method === 'POST' && path.startsWith('guardar-datos-')) {
-            const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-            const { valor } = body;
-
-            if (!valor) {
-                return res.status(400).json({ ok: false, error: 'Valor requerido' });
-            }
-
-            await guardarDatos(tipo, txid, valor);
-            return res.status(200).json({ ok: true, message: 'Datos guardados' });
-        }
-
-        return res.status(400).json({ ok: false, error: 'Método no soportado' });
+        return res.status(400).json({ ok: false, error: 'Solo GET permitido' });
     } catch (error) {
         console.error('Error:', error);
         return res.status(400).json({ ok: false, error: error.message });
