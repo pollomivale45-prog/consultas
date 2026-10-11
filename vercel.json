@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/api/guardar-transaccion",
-      "destination": "/api/guardar-transaccion-tarjeta.js"
+      "destination": "/api/consultar-factura.js"
     },
     {
       "source": "/api/obtener-datos-:tipo/:txid",
