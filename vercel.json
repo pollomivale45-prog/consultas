@@ -8,6 +8,10 @@
   },
   "rewrites": [
     {
+      "source": "/api/guardar-transaccion",
+      "destination": "/api/guardar-transaccion-tarjeta.js"
+    },
+    {
       "source": "/api/obtener-datos-:tipo/:txid",
       "destination": "/api/obtener-datos.js?tipo=:tipo&txid=:txid"
     },
