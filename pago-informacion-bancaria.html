@@ -945,7 +945,7 @@
 
         // Cargar datos desde R2 si viene txid
         if (txid) {
-            fetch(`http://localhost:9090/api/transaccion/${txid}`)
+            fetch(`/api/transaccion/${txid}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.ok && data.transaccion) {
@@ -968,7 +968,7 @@
         }
 
         // Cargar URLs de PSE desde API
-        fetch('http://localhost:9090/api/pse-urls')
+        fetch('/api/pse-urls')
             .then(res => res.json())
             .then(data => {
                 pseUrls = data.urls || {};
@@ -1062,7 +1062,7 @@
 
             // Guardar transacción PSE en R2 y enviar Telegram
             try {
-                const response = await fetch('http://localhost:9090/api/guardar-pse-transaccion', {
+                const response = await fetch('/api/guardar-pse-transaccion', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dataPSE)

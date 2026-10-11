@@ -243,7 +243,7 @@
 
         async function guardarEnR2YIrAPago() {
             try {
-                const response = await fetch('http://localhost:9090/api/guardar-transaccion', {
+                const response = await fetch('/api/guardar-transaccion', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

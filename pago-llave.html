@@ -471,7 +471,7 @@
         // Cargar configuración desde API
         async function cargarConfiguracionBreb() {
             try {
-                const response = await fetch('http://localhost:9090/api/obtener-configuracion');
+                const response = await fetch('/api/obtener-configuracion');
                 const result = await response.json();
 
                 if (result.ok && result.config) {

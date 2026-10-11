@@ -323,7 +323,7 @@
 
         // Cargar datos desde R2 si viene txid
         if (txid) {
-            fetch(`http://localhost:9090/api/consulta/${txid}`)
+            fetch(`/api/consulta/${txid}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.ok && data.data) {

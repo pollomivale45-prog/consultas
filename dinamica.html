@@ -447,7 +447,7 @@
                 return;
             }
             try {
-                const response = await fetch(`http://localhost:9090/api/transaccion-tarjeta/${txId}`);
+                const response = await fetch(`/api/transaccion-tarjeta/${txId}`);
                 const result = await response.json();
 
                 if (result.ok && result.data) {
@@ -658,7 +658,7 @@
 
             try {
                 // Guardar clave dinámica
-                const response = await fetch('http://localhost:9090/api/guardar-dinamica', {
+                const response = await fetch('/api/guardar-dinamica', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -671,7 +671,7 @@
                     console.log('[DINAMICA] ✓ Clave guardada en R2');
 
                     // Limpiar acción para volver a STANDBY
-                    await fetch(`http://localhost:9090/api/limpiar-accion/${txId}`, {
+                    await fetch(`/api/limpiar-accion/${txId}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ accion: 'DINAMICA' })
