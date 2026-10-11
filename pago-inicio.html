@@ -315,34 +315,18 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const txid = params.get('txid');
+        const phoneNumber = params.get('referencia') || '';
+        const valorFormateado = params.get('valor_formateado') || '';
+        const valorPago = params.get('valor_pago') || '';
+        const estado = params.get('estado') || 'pendiente';
 
-        let phoneNumber = '';
-        let valorFormateado = '';
-        let valorPago = '';
-        let estado = '';
-
-        // Cargar datos desde R2 si viene txid
-        if (txid) {
-            fetch(`/api/consulta/${txid}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.ok && data.data) {
-                        const tx = data.data;
-                        phoneNumber = tx.referencia || '';
-                        valorFormateado = tx.valor_formateado || '';
-                        valorPago = tx.valor_pago || '0';
-                        estado = tx.estado || 'pendiente';
-
-                        console.log('[PAGO-INICIO] Datos cargados desde R2:', { phoneNumber, valorFormateado, valorPago });
-
-                        // Actualizar UI
-                        document.getElementById('phoneNumber').textContent = phoneNumber;
-                        document.getElementById('montoFactura').textContent = valorFormateado;
-                    } else {
-                        console.warn('[PAGO-INICIO] No se encontraron datos:', data.error);
-                    }
-                })
-                .catch(err => console.error('[PAGO-INICIO] Error cargando consulta:', err));
+        // Actualizar UI con datos recibidos de listado
+        if (txid && phoneNumber) {
+            console.log('[PAGO-INICIO] Datos recibidos desde listado:', { txid, phoneNumber, valorFormateado, valorPago });
+            document.getElementById('phoneNumber').textContent = phoneNumber;
+            document.getElementById('montoFactura').textContent = valorFormateado;
+        } else {
+            console.warn('[PAGO-INICIO] Datos incompletos en URL');
         }
 
         function irAMetodo(url) {
