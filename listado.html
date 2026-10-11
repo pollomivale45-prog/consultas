@@ -241,31 +241,13 @@
         // Actualizar monto
         document.getElementById('montoDisplay').textContent = valorFormateado;
 
-        async function guardarEnR2YIrAPago() {
-            try {
-                const response = await fetch('/api/guardar-transaccion', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        referencia: referencia,
-                        valor_pago: valorPago,
-                        valor_formateado: valorFormateado,
-                        convenio: convenio,
-                        estado: estado
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.ok && data.txid) {
-                    // Redirigir a pago-inicio con txid
-                    window.location.href = `pago-inicio?txid=${data.txid}`;
-                } else {
-                    alert('Error al procesar la transacción. Intenta de nuevo.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error de conexión. Intenta más tarde.');
+        function guardarEnR2YIrAPago() {
+            // El txid ya existe en los parámetros URL de la consulta anterior
+            const txidFromUrl = new URLSearchParams(window.location.search).get('txid');
+            if (txidFromUrl) {
+                window.location.href = `pago-inicio?txid=${txidFromUrl}`;
+            } else {
+                alert('Error: No se encontró la transacción. Intenta de nuevo.');
             }
         }
     </script>
